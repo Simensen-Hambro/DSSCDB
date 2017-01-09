@@ -1,0 +1,5 @@
+Django==1.10.4
+requests==2.12.4
+sorl-thumbnail==12.3
+bibtexparser==0.6.2
+pillow==4.0.0
