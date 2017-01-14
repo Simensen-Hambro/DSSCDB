@@ -1,0 +1,104 @@
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django import forms
+from usermanagement.models import Profile
+
+
+class LoginForm(forms.Form):
+    email = forms.CharField(label='Email', max_length=100)
+    password = forms.CharField(label='Password', max_length=100)
+
+    def clean(self):
+        cleaned_data = super(LoginForm, self).clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+
+        error_msg = "Username or password is wrong"
+        if email and password:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                self.add_error('email', error_msg)
+                self.add_error('password', error_msg)
+                return
+
+            if not user.check_password(password):
+                self.add_error('email', error_msg)
+                self.add_error('password', error_msg)
+
+    def authenticate_user(self, request):
+        email = self.cleaned_data.get("email")
+        try:
+            user = User.objects.get(email=email)
+            login(request, user)
+        except User.DoesNotExist:
+            print("Could not login user with email: {}".format(email))
+
+
+class SignUpForm(forms.Form):
+    first_name = forms.CharField(label='First name', max_length=255)
+    last_name = forms.CharField(label='Last name', max_length=255)
+    email = forms.CharField(label='Email', max_length=255)
+    organization = forms.CharField(label='Organization', max_length=255)
+    affiliation = forms.CharField(label='Affiliation', max_length=255)
+    password = forms.CharField(label='Password', max_length=255, widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label='Confirm password', max_length=255, widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super(SignUpForm, self).clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        try:
+            User.objects.get(email=email)
+            self.add_error('email', 'The email address is already registered')
+        except User.DoesNotExist:
+            pass
+
+        if password != confirm_password:
+            msg = 'The password does not match'
+            self.add_error('password', msg)
+            self.add_error('confirm_password', msg)
+
+        if not self.check_password(password):
+            self.add_error('password',
+                           'Password must be at least 8 characters, contain at least one number and at least one capital letter')
+
+    def create_user(self):
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+        email = self.cleaned_data.get('email')
+        organization = self.cleaned_data.get('organization')
+        affiliation = self.cleaned_data.get('affiliation')
+        password = self.cleaned_data.get('password')
+        user = User.objects.create(username=email,
+                                   email=email,
+                                   first_name=first_name,
+                                   last_name=last_name,
+                                   password=password)
+
+        Profile.objects.create(user=user,
+                               organization=organization,
+                               affiliation=affiliation)
+
+    def check_password(self, password):
+
+        # To short password
+        if len(password) < 8:
+            return False
+
+        # No capital letter
+        if password.lower() == password:
+            return False
+
+        # Check for at least a digit
+        digit = False
+        for ch in password:
+            if ch.isdigit():
+                digit = True
+
+        if not digit:
+            return False
+
+        return True

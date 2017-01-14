@@ -32,15 +32,15 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if not request.user.is_authenticated %}
-          <li><a href="/login/">Login</a></li>
-          <li><a href="/signup/">Sign up</a></li>
+          <li><a href="{% url 'login' %}">Log in</a></li>
+          <li><a href="{% url 'signup' %}">Sign up</a></li>
         {% else %}
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
              aria-expanded="false">{{ request.user.first_name }} {{ request.user.last_name }} <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="#">My profile</a></li>
-            <li><a href="logout/">Logout</a></li>
+            <li><a href="{% url 'logout' %}">Log out</a></li>
           </ul>
         </li>
         {% endif %}
