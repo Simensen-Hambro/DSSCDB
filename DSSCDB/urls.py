@@ -6,5 +6,5 @@ from usermanagement import views as usermanagement_views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^admin/', admin.site.urls),
-    url(r'^user/', include('usermanagement.urls')),
+    url(r'^user/', include('usermanagement.urls', namespace='user')),
 ]

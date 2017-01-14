@@ -6,7 +6,7 @@ from usermanagement.models import Profile
 
 class LoginForm(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
-    password = forms.CharField(label='Password', max_length=100)
+    password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
 
     def clean(self):
         cleaned_data = super(LoginForm, self).clean()
@@ -57,11 +57,11 @@ class SignUpForm(forms.Form):
             pass
 
         if password != confirm_password:
-            msg = 'The password does not match'
+            msg = 'Passwords does not match'
             self.add_error('password', msg)
             self.add_error('confirm_password', msg)
 
-        if not self.check_password(password):
+        if not check_password(password):
             self.add_error('password',
                            'Password must be at least 8 characters, contain at least one number and at least one capital letter')
 
@@ -82,23 +82,76 @@ class SignUpForm(forms.Form):
                                organization=organization,
                                affiliation=affiliation)
 
-    def check_password(self, password):
 
-        # To short password
-        if len(password) < 8:
-            return False
+class ForgotPasswordForm(forms.Form):
+    email = forms.CharField(label='Email', max_length=100)
 
-        # No capital letter
-        if password.lower() == password:
-            return False
+    def clean(self):
+        cleaned_data = super(ForgotPasswordForm, self).clean()
+        email = cleaned_data.get('email')
 
-        # Check for at least a digit
-        digit = False
-        for ch in password:
-            if ch.isdigit():
-                digit = True
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            self.add_error('email', 'The email is not registered')
 
-        if not digit:
-            return False
 
-        return True
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(label='Current password', max_length=100, widget=forms.PasswordInput)
+    new_password = forms.CharField(label='New password', max_length=100, widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label='Confirm new password', max_length=100, widget=forms.PasswordInput)
+
+
+    def __init__(self, email, *args, **kwargs):
+        self.email = email
+        super(ChangePasswordForm, self).__init__(*args, **kwargs)
+
+
+    def clean(self):
+        cleaned_data = super(ChangePasswordForm, self).clean()
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+        email = self.email
+
+        user = User.objects.get(email=email)
+
+        if not user.check_password(current_password):
+            self.add_error('current_password', 'Wrong password')
+
+        if new_password != confirm_password:
+            self.add_error('new_password', 'Passwords does not match')
+            self.add_error('confirm_password', 'Passwords does not match')
+
+        if not check_password(new_password):
+            self.add_error('new_password',
+                           'Password must be at least 8 characters, contain at least one number and at least one capital letter')
+
+
+    def change_password(self, request):
+        email = self.email
+        new_password = self.cleaned_data.get('new_password')
+        user = User.objects.get(email=email)
+        user.set_password(new_password)
+        user.save()
+        login(request, user)
+
+def check_password(password):
+    # To short password
+    if len(password) < 8:
+        return False
+
+    # No capital letter
+    if password.lower() == password:
+        return False
+
+    # Check for at least a digit
+    digit = False
+    for ch in password:
+        if ch.isdigit():
+            digit = True
+
+    if not digit:
+        return False
+
+    return True
