@@ -1,0 +1,27 @@
+/* COLORS AS VARIABLES */
+:root {
+
+    --nav-color: #2c3e50;
+    --background-color: #EFEFF3;
+    --white: #ffffff;
+    --gray-1: #868179;
+    --gray-2: #565645;
+}
+
+body {
+  background-color: var(--background-color);
+}
+
+.panel {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.panel-default>.panel-heading {
+  background-color: var(--nav-color);
+  color: var(--white);
+}
+
+form .alert {
+    display: none;
+}

@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title> Dye Sensitized Solar Cell Database</title>
+
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}">
+
+  <link href="{% static 'DSSCDB/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'DSSCDB/css/base.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'DSSCDB/javascript/jquery.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'DSSCDB/javascript/bootstrap.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'DSSCDB/javascript/ajax_request.js' %}"></script>
+
+
+  {% block styles %}
+  {% endblock styles %}
+
+  {% block head-scripts %}
+  {% endblock head-scripts %}
+</head>
+
+<body>
+<main>
+  {% include "DSSCDB/menu.html" %}
+
+  {% block content %}
+  {% endblock %}
+</main>
+{% block footer-scripts %}
+{% endblock footer-scripts %}
+</body>
+</html>
