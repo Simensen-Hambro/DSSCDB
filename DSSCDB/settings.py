@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'DSSCDB',
     'dye',
-    'sorl.thumbnail',
+    'usermanagement',
+    'sorl.thumbnail',           # Image thumbnails and caching
+    'extended_choices'          # Better enumeration support for choices
 ]
 
 MIDDLEWARE_CLASSES = [
