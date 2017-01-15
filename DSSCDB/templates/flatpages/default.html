@@ -1,0 +1,18 @@
+{% extends 'DSSCDB/base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-1 col-lg-offset-1 col-lg-10 col-md-10">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h1>{{ flatpage.title }}</h1>
+            <p>{{ flatpage.content }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+

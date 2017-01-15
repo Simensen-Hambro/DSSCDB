@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'sorl.thumbnail',           # Image thumbnails and caching
     'extended_choices',         # Better enumeration support for choices
     'bootstrap3',
+    'django.contrib.flatpages',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE_CLASSES = [
