@@ -8,18 +8,28 @@
     --gray-2: #565645;
 }
 
-body {
-  background-color: var(--background-color);
+html, body {
+    background-color: var(--background-color);
+    height: 100%;
+
+}
+
+.wrapper {
+    min-height: 100%;
 }
 
 .panel {
-  padding-left: 0px;
-  padding-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
-.panel-default>.panel-heading {
-  background-color: var(--nav-color);
-  color: var(--white);
+.panel-default > .panel-heading {
+    background-color: var(--nav-color);
+    color: var(--white);
+}
+
+#main-menu {
+    margin-bottom: 40px;
 }
 
 form .alert {

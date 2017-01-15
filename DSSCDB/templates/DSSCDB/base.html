@@ -23,19 +23,28 @@
 </head>
 
 <body>
-<main>
+<main class="wrapper">
   {% include "DSSCDB/menu.html" %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-7 col-lg-7">
-                {% bootstrap_messages %}
-            </div>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7 col-lg-7">
+        {% bootstrap_messages %}
+      </div>
     </div>
+  </div>
   {% block content %}
   {% endblock %}
 </main>
+{% include 'DSSCDB/footer.html' %}
 {% block footer-scripts %}
 {% endblock footer-scripts %}
+<script>
+  $(function(){
+    var $wrapper = $(".wrapper");
+    var $footer = $("#footer");
+    $wrapper.css("margin-bottom",-$footer.height());
+    $wrapper.css("padding-bottom",$footer.height());
+  });
+</script>
 </body>
 </html>
