@@ -40,7 +40,7 @@ def signup_view(request):
                       sender=settings.DEFAULT_FROM_MAIL,
                       template='activation_email',
                       context={'request': request, 'user': user, 'token': token})
-            messages.add_message(request, messages.SUCCESS, 'You will receive a confirmation email to verify you email address')
+            messages.add_message(request, messages.INFO, 'You will receive a confirmation email to verify you email address')
             return HttpResponseRedirect(reverse('index'))
 
     else:
@@ -64,14 +64,14 @@ def forgot_password_view(request):
                           sender=settings.DEFAULT_FROM_MAIL,
                           template='activation_email',
                           context={'request': request, 'user': user, 'token': token})
-                messages.add_message(request, messages.SUCCESS,
+                messages.add_message(request, messages.INFO,
                                      'You will receive a confirmation email to verify you email address')
             else:
                 mail.send(recipients=[user.email],
                           sender=settings.DEFAULT_FROM_MAIL,
                           template='set_password_email',
                           context={'request': request, 'user': user, 'token': token})
-                messages.add_message(request, messages.SUCCESS,
+                messages.add_message(request, messages.INFO,
                                      'You will receive an email with further instruction to reset your password')
 
             return HttpResponseRedirect(reverse('index'))
@@ -93,7 +93,7 @@ def change_password_view(request):
         form = ChangePasswordForm(data=request.POST, email=request.user.email)
         if form.is_valid():
             form.change_password(request)
-            messages.add_message(request, messages.SUCCESS, 'The password is now changed')
+            messages.add_message(request, messages.INFO, 'The password is now changed')
             return HttpResponseRedirect(reverse('index'))
 
     else:
@@ -109,7 +109,7 @@ def activate(request, key):
     try:
         token = UserToken.objects.get(key=key)
         token.activate()
-        messages.add_message(request, messages.SUCCESS, 'Your account is now activated')
+        messages.add_message(request, messages.INFO, 'Your account is now activated')
         return HttpResponseRedirect(reverse('index'))
     except UserToken.DoesNotExist:
         raise Http404
@@ -125,7 +125,7 @@ def set_password_view(request, key):
         form = SetPasswordForm(request.POST)
         if form.is_valid():
             token.set_password(form.cleaned_data.get('new_password'))
-            messages.add_message(request, messages.SUCCESS, 'The new password is now set')
+            messages.add_message(request, messages.INFO, 'The new password is now set')
             return HttpResponseRedirect(reverse('index'))
 
     else:

@@ -9,23 +9,25 @@
 {% block content %}
   <div class="container">
     <div class="row">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Log in</h3>
-        </div>
-        <div class="panel-body">
-        <form action="{% url 'user:login' %}" method="post" class="form">
-          {% csrf_token %}
-          {% bootstrap_form form %}
-          <div class="form-group">
-            <a id="forgot-password-link" href="{% url 'user:forgot-password' %}">Forgot password?</a>
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Log in</h3>
           </div>
-          {% buttons %}
-            <button type="submit" class="btn btn-primary">Log in</button>
-          {% endbuttons %}
-        </form>
+          <div class="panel-body panel-content">
+            <form action="{% url 'user:login' %}" method="post" class="form">
+              {% csrf_token %}
+              {% bootstrap_form form %}
+              <div class="form-group">
+                <a id="forgot-password-link" href="{% url 'user:forgot-password' %}">Forgot password?</a>
+              </div>
+              {% buttons %}
+                <button type="submit" class="btn btn-primary submit-button">Log in</button>
+              {% endbuttons %}
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 {% endblock content %}
