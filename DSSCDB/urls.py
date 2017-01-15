@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('usermanagement.urls', namespace='user')),
+    url(r'^hub/', include('dye.urls', namespace='dye')),
 ]
