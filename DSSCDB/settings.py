@@ -142,5 +142,6 @@ POST_OFFICE = {
 EMAIL_BACKEND = 'post_office.EmailBackend'
 EMAIL_HOST = 'smtp.ansatt.ntnu.no'
 EMAIL_PORT = '25'
-EMAIL_HOST_USER = ""
+EMAIL_HOST_USER = ''
+DEFAULT_FROM_MAIL = 'carl.j.v.hambro@ntnu.no'
 

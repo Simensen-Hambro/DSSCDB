@@ -17,6 +17,9 @@ class LoginForm(forms.Form):
         if email and password:
             try:
                 user = User.objects.get(email=email)
+                if not user.is_active:
+                    self.add_error('email', 'The account is not confirmed. Click forgot password to receive a new confirmation email')
+                    return
             except User.DoesNotExist:
                 self.add_error('email', error_msg)
                 self.add_error('password', error_msg)
@@ -76,7 +79,9 @@ class SignUpForm(forms.Form):
                                    email=email,
                                    first_name=first_name,
                                    last_name=last_name,
-                                   password=password)
+                                   is_active=False)
+        user.set_password(password)
+        user.save()
 
         Profile.objects.create(user=user,
                                organization=organization,
@@ -94,6 +99,26 @@ class ForgotPasswordForm(forms.Form):
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             self.add_error('email', 'The email is not registered')
+
+
+
+class SetPasswordForm(forms.Form):
+    new_password = forms.CharField(label='New password', max_length=100, widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label='Confirm new password', max_length=100, widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super(SetPasswordForm, self).clean()
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if new_password != confirm_password:
+            self.add_error('new_password', 'Passwords does not match')
+            self.add_error('confirm_password', 'Passwords does not match')
+
+        if not check_password(new_password):
+            self.add_error('new_password',
+                           'Password must be at least 8 characters, contain at least one number and at least one capital letter')
+
 
 
 class ChangePasswordForm(forms.Form):

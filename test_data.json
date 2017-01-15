@@ -16,5 +16,35 @@
       "groups": [],
       "user_permissions": []
     }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 1,
+    "fields": {
+      "name": "activation_email",
+      "description": "Email sent to users when they sign up. It containts a link so they can activate their email.",
+      "created": "2017-01-15T13:46:00.780Z",
+      "last_updated": "2017-01-15T14:29:53.974Z",
+      "subject": "Confirmation of email",
+      "content": "Hi, {{ user.first_name }}!\r\n\r\nBefore you can start you use our pages, you will need to confirm your email address. Click the link below to confirm.\r\n\r\nConfirm email: http://{{ request.get_host }}/user/activate/{{ token.key }}/\r\n\r\nKind regards,\r\nThe team at DSSCDB",
+      "html_content": "<h2>Hi, {{ user.first_name }}!</h2>\r\n\r\n<p>Before you can start you use our pages, you will need to confirm your email address. Click the link below to confirm.</p>\r\n\r\n<p>Confirm here: <a href=\"http://{{ request.get_host }}/user/activate/{{ token.key }}/\">http://{{ request.get_host }}/user/activate/{{ token.key }}/</a></p>\r\n\r\n<p>Kind regards,</p>\r\n<p>The team at DSSCDB</p>",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 2,
+    "fields": {
+      "name": "set_password_email",
+      "description": "Email sent to users when they have forgot their password. Contains link to a page where they can set a new password.",
+      "created": "2017-01-15T14:29:19.147Z",
+      "last_updated": "2017-01-15T14:29:19.147Z",
+      "subject": "Forgotten password",
+      "content": "Here you have a link to reset your password:\r\n\r\nLink: http://{{ request.get_host }}/user/set-password/{{ token.key }}/\r\n\r\nKind regards,\r\nThe team at DSSCDB",
+      "html_content": "<p>Here you have a link to reset your password:</p>\r\n\r\n<p>Link: <a href=\"http://{{ request.get_host }}/user/set-password/{{ token.key }}/\">http://{{ request.get_host }}/user/set-password/{{ token.key }}/</a></p>\r\n\r\n<p>Kind regards,</p>\r\n<p>The team at DSSCDB</p>",
+      "language": "",
+      "default_template": null
+    }
   }
 ]

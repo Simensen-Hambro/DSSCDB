@@ -32,8 +32,8 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if not request.user.is_authenticated %}
-          <li><a href="{% url 'user:login' %}">Log in</a></li>
           <li><a href="{% url 'user:signup' %}">Sign up</a></li>
+          <li><a href="{% url 'user:login' %}">Log in</a></li>
         {% else %}
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
