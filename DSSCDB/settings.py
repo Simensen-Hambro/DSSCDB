@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'bootstrap3',
     'django.contrib.flatpages',
     'django.contrib.sites',
+    'post_office',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -131,3 +132,15 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     '/var/www/static/',
 ]
+
+POST_OFFICE = {
+    'LOG_LEVEL': 2,
+    'DEFAULT_PRIORITY': 'now',
+
+}
+
+EMAIL_BACKEND = 'post_office.EmailBackend'
+EMAIL_HOST = 'smtp.ansatt.ntnu.no'
+EMAIL_PORT = '25'
+EMAIL_HOST_USER = ""
+
