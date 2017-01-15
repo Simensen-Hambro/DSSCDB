@@ -8,5 +8,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('usermanagement.urls', namespace='user')),
     url(r'^hub/', include('dye.urls', namespace='dye')),
-    url(r'^', include('django.contrib.flatpages.urls')),
+    url(r'^', include('django.contrib.flatpages.urls', namespace='flatpages')),
 ]
