@@ -5,45 +5,56 @@
 {% block content %}
   {% if errors %}
     <div class="container">
-      <div clas="row">
-        <table class="table table-bordered table-hover">
-          <thread>
-            <tr>
-              <th>Row</th>
-              <th>Field</th>
-              <th>Message</th>
-            </tr>
-          </thread>
-          <tbody>
-          {% for error in errors %}
-            {% if 'already exists' not in error.message|striptags %}
-              <tr>
-                <th>{{ error.row }}</th>
-                <td>{{ error.key }}</td>
-                <td>{{ error.message|striptags }}</td>
-              </tr>
-            {% endif %}
-          {% endfor %}
-          </tbody>
-        </table>
+      <div class="row">
+        <div class="col-md-offset-1 col-md-10">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Errors</h3>
+            </div>
+            <div class="panel-body panel-content">
+              <table class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                  <th>Row</th>
+                  <th>Field</th>
+                  <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for error in errors %}
+                  {% if 'already exists' not in error.message|striptags %}
+                    <tr>
+                      <th>{{ error.row }}</th>
+                      <td>{{ error.key }}</td>
+                      <td>{{ error.message|striptags }}</td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  {% endif %}
 
-  <div class="row">
-    <div class="col-md-offset-1 col-md-10">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Batch upload spreadsheet data </h3>
-        </div>
-        <div class="panel-body panel-content">
-          <form action="{% url 'dye:file-upload' %}" method="post" class="form" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% bootstrap_form file_form %}
-            {% buttons %}
-              <button type="submit" class="btn btn-primary submit-button">Upload</button>
-            {% endbuttons %}
-          </form>
+  {% endif %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-1 col-md-10">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Batch upload spreadsheet data </h3>
+          </div>
+          <div class="panel-body panel-content">
+            <form action="{% url 'dye:file-upload' %}" method="post" class="form" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% bootstrap_form file_form %}
+              {% buttons %}
+                <button type="submit" class="btn btn-primary submit-button">Upload</button>
+              {% endbuttons %}
+            </form>
+          </div>
         </div>
       </div>
     </div>

@@ -6,4 +6,5 @@ pillow==4.0.0
 django-extended-choices==1.1.1
 django-bootstrap3==8.1.0
 django-post-office==2.0.8
+xlrd-1.0.0
 
