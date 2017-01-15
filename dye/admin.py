@@ -1,12 +1,12 @@
 from django.contrib import admin
-from .models import Article, Molecule, Spectrum, Performance
+from .models import Article, Molecule, Spectrum, Performance, Spreadsheet
 
 
 admin.site.register(Article)
 admin.site.register(Molecule)
 admin.site.register(Spectrum)
 admin.site.register(Performance)
-
+admin.site.register(Spreadsheet)
 
 
 

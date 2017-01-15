@@ -1,5 +1,5 @@
 from django import forms
-from .models import Molecule, Spectrum, Performance
+from .models import Molecule, Spectrum, Performance, Spreadsheet
 
 
 class ArticleForm(forms.Form):
@@ -44,4 +44,12 @@ class PerformanceForm(forms.ModelForm):
             'solar_simulator',
             'keywords',
             'comment',
+        ]
+
+
+class SpreadsheetForm(forms.ModelForm):
+    class Meta:
+        model = Spreadsheet
+        fields = [
+            'file'
         ]

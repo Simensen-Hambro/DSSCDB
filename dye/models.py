@@ -10,6 +10,12 @@ STATES = Choices(
 )
 
 
+class Spreadsheet(models.Model):
+    file = models.FileField(upload_to='spreadsheets')
+    user = models.ForeignKey(User)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 class Molecule(models.Model):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True)
     inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
@@ -48,8 +54,8 @@ class Article(models.Model):
 
 
 class Spectrum(models.Model):
-    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=5)
-    emission_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=5)
+    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
+    emission_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
     solvent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 

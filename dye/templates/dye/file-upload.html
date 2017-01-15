@@ -1,0 +1,58 @@
+{% extends 'DSSCDB/base.html' %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+  {% if errors %}
+    <div class="container">
+      <div clas="row">
+        <table class="table table-bordered table-hover">
+          <thread>
+            <tr>
+              <th>Row</th>
+              <th>Field</th>
+              <th>Message</th>
+            </tr>
+          </thread>
+          <tbody>
+          {% for error in errors %}
+            {% if 'already exists' not in error.message|striptags %}
+              <tr>
+                <th>{{ error.row }}</th>
+                <td>{{ error.key }}</td>
+                <td>{{ error.message|striptags }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-offset-1 col-md-10">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Log in</h3>
+        </div>
+        <div class="panel-body panel-content">
+          <p>{% lorem 1 p %}</p>
+          <p>Article: {{ article }}</p>
+          <p>Molecule:{{ molecule }}</p>
+          <p>Spectum:{{ spectrum }}</p>
+          <p>Performance:{{ performance }}</p>
+          <form action="{% url 'dye:file-upload' %}" method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form file_form %}
+            {% buttons %}
+              <button type="submit" class="btn btn-primary submit-button">Upload</button>
+            {% endbuttons %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
