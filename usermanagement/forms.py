@@ -5,7 +5,7 @@ from usermanagement.models import Profile
 
 
 class LoginForm(forms.Form):
-    email = forms.CharField(label='Email', max_length=100)
+    email = forms.EmailField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
 
     def clean(self):
@@ -13,7 +13,7 @@ class LoginForm(forms.Form):
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
 
-        error_msg = "Username or password is wrong"
+        error_msg = "Email or password is wrong"
         if email and password:
             try:
                 user = User.objects.get(email=email)
@@ -41,7 +41,7 @@ class LoginForm(forms.Form):
 class SignUpForm(forms.Form):
     first_name = forms.CharField(label='First name', max_length=255)
     last_name = forms.CharField(label='Last name', max_length=255)
-    email = forms.CharField(label='Email', max_length=255)
+    email = forms.EmailField(label='Email', max_length=255)
     organization = forms.CharField(label='Organization', max_length=255)
     affiliation = forms.CharField(label='Affiliation', max_length=255)
     password = forms.CharField(label='Password', max_length=255, widget=forms.PasswordInput)
