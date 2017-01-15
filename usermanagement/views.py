@@ -9,16 +9,26 @@ from django.conf import settings
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        raise Http404
     if request.method == 'POST':
+        next = request.POST.get('next')
         form = LoginForm(request.POST)
         if form.is_valid():
             form.authenticate_user(request)
-            return HttpResponseRedirect(reverse('index'))
+            if request.POST.get('next') == 'None':
+                return HttpResponseRedirect(reverse('index'))
+            else:
+                return HttpResponseRedirect(request.POST.get('next'))
     else:
         form = LoginForm()
+        next = request.GET.get('next')
+
+
 
     context = {
-        'form': form
+        'form': form,
+        'next': next
     }
 
     return render(request, 'usermanagement/login.html', context)
@@ -137,3 +147,24 @@ def set_password_view(request, key):
     }
     return render(request, 'usermanagement/set_password.html', context)
 
+
+def profile(request):
+    if not request.user.is_authenticated:
+        raise Http404
+
+    context = {
+        'user_profile': request.user.profile,
+    }
+    return render(request, 'usermanagement/profile.html', context)
+
+
+
+def admin_users(request):
+    if not request.user.is_staff:
+        raise Http404
+
+    context = {
+        'profiles': Profile.objects.all().order_by('organization', 'user__first_name', 'user__last_name'),
+    }
+
+    return render(request, 'usermanagement/admin_users.html', context)

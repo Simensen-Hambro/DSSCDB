@@ -6,9 +6,11 @@
     <div class="row">
       <div class="col-md-offset-1 col-lg-offset-1 col-lg-10 col-md-10">
         <div class="panel panel-default">
-          <div class="panel-body">
-            <h1>{{ flatpage.title }}</h1>
-            <p>{{ flatpage.content }}</p>
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ flatpage.title }}</h3>
+          </div>
+          <div class="panel-body panel-content">
+            {{ flatpage.content|safe }}
           </div>
         </div>
       </div>

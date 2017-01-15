@@ -46,5 +46,55 @@
       "language": "",
       "default_template": null
     }
+  },
+  {
+    "model": "sites.site",
+    "pk": 1,
+    "fields": {
+      "domain": "example.com",
+      "name": "example.com"
+    }
+  },
+  {
+    "model": "sites.site",
+    "pk": 2,
+    "fields": {
+      "domain": "localhost",
+      "name": "localhost"
+    }
+  },
+  {
+    "model": "sites.site",
+    "pk": 3,
+    "fields": {
+      "domain": "127.0.0.1",
+      "name": "127.0.0.1"
+    }
+  },
+  {
+    "model": "flatpages.flatpage",
+    "pk": 1,
+    "fields": {
+      "url": "/about/",
+      "title": "About",
+      "content": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lorem felis, iaculis id massa eget, bibendum rutrum odio. Sed egestas massa luctus quam elementum porttitor. Vestibulum ut turpis cursus, facilisis velit eget, viverra libero. Morbi eget leo metus. Fusce posuere laoreet rutrum. Nulla ut magna eget est ornare tincidunt nec sed erat. Sed eu ultricies nisi. Nam blandit, tellus et bibendum euismod, ex dui ullamcorper tellus, ut gravida ante elit nec tellus. Fusce iaculis lorem vel ligula volutpat, a vestibulum augue rhoncus. Etiam finibus justo libero, mollis varius risus pulvinar vitae. Suspendisse a nisi imperdiet, molestie urna sit amet, tempus dolor. Maecenas dictum sem ut tristique bibendum. Nunc a velit rhoncus, convallis ex quis, consequat justo. Pellentesque sit amet cursus leo.</p>\r\n\r\n<p>Mauris lobortis vestibulum dui, pulvinar egestas eros. Ut porta tellus tortor, eget molestie est ullamcorper eu. Integer a neque a ligula fringilla vehicula. Phasellus faucibus eros odio, nec porttitor diam laoreet in. Quisque auctor metus non ex faucibus molestie. In et arcu vehicula, finibus magna vel, pharetra neque. Nulla eros libero, efficitur eget scelerisque a, laoreet vehicula ex. Nulla malesuada ante augue, vel congue lacus tincidunt sed. Nullam mattis, purus quis lacinia convallis, ante enim finibus odio, at commodo lacus dui at leo. Aliquam imperdiet eleifend sapien, ut tincidunt tellus elementum quis. Cras auctor aliquet dolor.</p>",
+      "enable_comments": false,
+      "template_name": "",
+      "registration_required": false,
+      "sites": [
+        3,
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "usermanagement.profile",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "organization": "NTNU",
+      "affiliation": "Hei"
+    }
   }
 ]

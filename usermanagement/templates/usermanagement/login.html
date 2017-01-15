@@ -21,6 +21,7 @@
               <div class="form-group">
                 <a id="forgot-password-link" href="{% url 'user:forgot-password' %}">Forgot password?</a>
               </div>
+              <input hidden value="{{ next }}" name="next">
               {% buttons %}
                 <button type="submit" class="btn btn-primary submit-button">Log in</button>
               {% endbuttons %}

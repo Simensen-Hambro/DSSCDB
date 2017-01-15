@@ -1,6 +1,7 @@
+{% load static %}
+
 <nav class="navbar navbar-default" id="main-menu">
   <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
               data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -9,24 +10,28 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="{% url 'index' %}">Dye Sensitized Solar Cell Database</a>
+      <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'DSSCDB/images/logo.png' %}"
+                                                            class="img-responsive logo-image"
+                                                            alt="Responsive image" width="200" height="50"></a>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="#">About</a></li>
+        <li><a href="{% url 'django.contrib.flatpages.views.flatpage' 'about' %}">About</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false">Dropdown <span class="caret"></span></a>
+             aria-expanded="false">Browse <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
+            <li><a href="#">Keyword</a></li>
+            <li><a href="#">Range</a></li>
+            <li><a href="#">Structure</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+             aria-expanded="false">Upload <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'dye:single-upload' %}">Single record</a></li>
+            <li><a href="{% url 'dye:file-upload' %}">File</a></li>
           </ul>
         </li>
       </ul>
@@ -35,15 +40,23 @@
           <li><a href="{% url 'user:signup' %}">Sign up</a></li>
           <li><a href="{% url 'user:login' %}">Log in</a></li>
         {% else %}
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ request.user.first_name }} {{ request.user.last_name }} <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">My profile</a></li>
-            <li><a href="{% url 'user:change-password' %}">Change password</a></li>
-            <li><a href="{% url 'user:logout' %}">Log out</a></li>
-          </ul>
-        </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false"><span class="glyphicon glyphicon-user"
+                                           aria-hidden="true"></span> {{ request.user.first_name }} {{ request.user.last_name }}
+              <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              {% if request.user.is_staff %}
+                <li class="dropdown-header">Admin</li>
+                <li><a href="{% url 'user:admin-users' %}">Users</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Profile</li>
+              {% endif %}
+              <li><a href="{% url 'user:profile' %}">My profile</a></li>
+              <li><a href="{% url 'user:change-password' %}">Change password</a></li>
+              <li><a href="{% url 'user:logout' %}">Log out</a></li>
+            </ul>
+          </li>
         {% endif %}
       </ul>
     </div>

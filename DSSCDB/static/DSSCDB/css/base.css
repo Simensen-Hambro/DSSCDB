@@ -40,6 +40,28 @@ form .alert {
     margin-top: 10px;
 }
 
+.frontpage-image {
+    margin-top: 50px;
+}
+
+.logo-image {
+    margin-top: -10px;
+}
+
+.frontpage-text {
+    text-align: center;
+}
+
+.frontpage-small-text {
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.dropdown-header {
+    color: var(--nav-color);
+    font-weight: bold;
+}
+
 @media (min-width: 768px) {
     #main-menu {
         margin-bottom: 25px;

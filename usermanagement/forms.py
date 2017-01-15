@@ -18,7 +18,8 @@ class LoginForm(forms.Form):
             try:
                 user = User.objects.get(email=email)
                 if not user.is_active:
-                    self.add_error('email', 'The account is not confirmed. Click forgot password to receive a new confirmation email')
+                    self.add_error('email',
+                                   'The account is not confirmed. Click forgot password to receive a new confirmation email')
                     return
             except User.DoesNotExist:
                 self.add_error('email', error_msg)
@@ -101,7 +102,6 @@ class ForgotPasswordForm(forms.Form):
             self.add_error('email', 'The email is not registered')
 
 
-
 class SetPasswordForm(forms.Form):
     new_password = forms.CharField(label='New password', max_length=100, widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='Confirm new password', max_length=100, widget=forms.PasswordInput)
@@ -120,17 +120,14 @@ class SetPasswordForm(forms.Form):
                            'Password must be at least 8 characters, contain at least one number and at least one capital letter')
 
 
-
 class ChangePasswordForm(forms.Form):
     current_password = forms.CharField(label='Current password', max_length=100, widget=forms.PasswordInput)
     new_password = forms.CharField(label='New password', max_length=100, widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='Confirm new password', max_length=100, widget=forms.PasswordInput)
 
-
     def __init__(self, email, *args, **kwargs):
         self.email = email
         super(ChangePasswordForm, self).__init__(*args, **kwargs)
-
 
     def clean(self):
         cleaned_data = super(ChangePasswordForm, self).clean()
@@ -152,7 +149,6 @@ class ChangePasswordForm(forms.Form):
             self.add_error('new_password',
                            'Password must be at least 8 characters, contain at least one number and at least one capital letter')
 
-
     def change_password(self, request):
         email = self.email
         new_password = self.cleaned_data.get('new_password')
@@ -160,6 +156,7 @@ class ChangePasswordForm(forms.Form):
         user.set_password(new_password)
         user.save()
         login(request, user)
+
 
 def check_password(password):
     # To short password

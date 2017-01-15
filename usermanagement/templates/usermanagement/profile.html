@@ -1,0 +1,43 @@
+{% extends 'DSSCDB/base.html' %}
+{% load bootstrap3 %}
+{% load static %}
+
+{% block styles %}
+  <link href="{% static 'usermanagement/css/usermanagement.css' %}" rel="stylesheet" type="text/css">
+{% endblock styles %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">My profile</h3>
+          </div>
+          <div class="panel-body panel-content">
+            <div class="row">
+              <div class="col-xs-12 col-sm-8">
+                <table class="table table-striped">
+                  <tbody>
+                  <tr>
+                    <th>Name:</th>
+                    <td>{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}</td>
+                  </tr>
+                  <tr>
+                    <th>Email:</th>
+                    <td>{{ user_profile.user.email }}</td>
+                  </tr>
+                  <tr>
+                    <th>Organization:</th>
+                    <td>{{ user_profile.organization }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

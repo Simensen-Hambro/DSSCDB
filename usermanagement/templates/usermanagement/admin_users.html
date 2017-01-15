@@ -1,0 +1,47 @@
+{% extends 'DSSCDB/base.html' %}
+{% load bootstrap3 %}
+{% load static %}
+
+{% block styles %}
+  <link href="{% static 'usermanagement/css/usermanagement.css' %}" rel="stylesheet" type="text/css">
+{% endblock styles %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Users</h3>
+          </div>
+          <div class="panel-body panel-content">
+            <div class="row">
+              <div class="col-xs-12">
+                <table class="table table-striped">
+                  <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Organization</th>
+                    <th>Last logged in</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for profile in profiles %}
+                    <tr>
+                      <td>{{ profile.user.first_name }} {{ profile.user.last_name }}</td>
+                      <td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
+                      <td>{{ profile.organization }}</td>
+                      <td>{{ profile.user.last_login|date:"d. F Y" }}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

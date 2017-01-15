@@ -1,17 +1,18 @@
 {% extends 'DSSCDB/base.html' %}
+{% load static %}
 
 {% block content %}
   <div class="container">
     <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">About</h3>
-          </div>
-          <div class="panel-body panel-content">
-            {% lorem 3 p %}
-          </div>
-        </div>
+      <div class="col-md-6 col-md-offset-3 frontpage-text">
+        <h2>Dye Sensitized Solar Cell Database</h2>
+      </div>
+      <div class="col-md-6 col-md-offset-3 frontpage-text">
+        <img src="{% static 'DSSCDB/images/frontpage_image.png' %}" class="img-responsive frontpage-image"
+             alt="Responsive image">
+      </div>
+      <div class="col-md-6 col-md-offset-3 frontpage-text frontpage-small-text">
+        <h4><a href="{% url 'user:signup' %}">Sign up</a> and <a href="{% url 'user:login' %}">log in</a> to browse the database</h4>
       </div>
     </div>
   </div>
