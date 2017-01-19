@@ -17,13 +17,12 @@ class Spreadsheet(models.Model):
 
 
 class Molecule(models.Model):
-    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True)
+    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.")
     inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
-    user = models.ForeignKey(User, related_name='molecules')
 
     status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
 
@@ -45,7 +44,6 @@ class Article(models.Model):
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
-    user = models.ForeignKey(User, related_name='articles')
 
     status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
 
@@ -54,13 +52,12 @@ class Article(models.Model):
 
 
 class Spectrum(models.Model):
-    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
+    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10, help_text="[kg/s]")
     emission_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
     solvent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     molecule = models.ForeignKey(Molecule)
-    user = models.ForeignKey(User, related_name='spectra')
     article = models.ForeignKey(Article, related_name='spectra')
 
     status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
@@ -92,7 +89,6 @@ class Performance(models.Model):
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
-    user = models.ForeignKey(User, related_name='performances')
     article = models.ForeignKey(Article, related_name='performances')
     molecule = models.ForeignKey(Molecule, related_name='performances')
 
@@ -102,8 +98,42 @@ class Performance(models.Model):
         return str(self.molecule)
 
     class Meta:
-        unique_together = ('user', 'article', 'molecule')
         verbose_name = "DSSC performance"
+
+
+class ContributionManager(models.Manager):
+    def create_from_data(self, data_entry, *args, **kwargs):
+        contribution = self.create(*args, **kwargs)
+        for row in data_entry:
+            article, molecule, spectrum, performance = row.get('article'), row.get('molecule'), \
+                                                       row.get('spectrum'), row.get('performance')
+            if not article.pk:
+                article.save()
+                contribution.articles.add(article)
+            if not molecule.pk:
+                molecule.article = article
+                molecule.save()
+                contribution.molecules.add(molecule)
+            if not spectrum.pk:
+                spectrum.molecule, spectrum.article = molecule, article
+                spectrum.save()
+                contribution.specta.add(spectrum)
+                performance.article, performance.molecule = article, molecule
+            performance.save()
+            contribution.performances.add(performance)
+        return contribution
+
+
+class Contribution(models.Model):
+    user = models.ForeignKey(User, related_name='contributions')
+    performances = models.ManyToManyField(Performance)
+    articles = models.ManyToManyField(Article)
+    specta = models.ManyToManyField(Spectrum)
+    molecules = models.ManyToManyField(Molecule)
+
+    objects = ContributionManager()
+
+    class Meta:
         permissions = (
             ("upload_performance_data", "Can upload performance data"),
         )
