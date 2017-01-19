@@ -156,3 +156,10 @@ def file_upload(request):
             return redirect(reverse('dye:file-upload'))
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
+
+def list_performance(request):
+    context = {
+        'performances': Performance.objects.all()
+    }
+
+    return render(request, 'dye/list.html', context)

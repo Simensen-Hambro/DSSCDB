@@ -1,0 +1,36 @@
+{% extends 'DSSCDB/base.html' %}
+{% load static %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Performance data</h3>
+          </div>
+          <div class="panel-body panel-content">
+            <table class="table">
+              <thead>
+              <tr>
+                <th>Image</th>
+                <th>Value 1</th>
+                <th>Value 2</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for performance in performances %}
+                <tr>
+                  <td><img src="{%  static performance.molecule.image %}" width="160" height="160" alt="Responsive image"></td>
+                  <td>{{ performance.voc }}</td>
+                  <td>{{ performance.jsc }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
