@@ -1,82 +1,13 @@
-from .models import Article, Molecule, Spectrum, Performance, Contribution
-from django.utils.timezone import datetime
-import requests
-import bibtexparser
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import FieldError
-
 from django.contrib import messages
-from django.shortcuts import reverse, render
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import FieldError
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
+from django.shortcuts import reverse, render
 
 from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm
-import re
-from django.db import transaction
-
-
-def get_DOI_metadata(doi):
-    url = 'http://dx.doi.org/' + doi
-    headers = {'accept': 'application/x-bibtex', 'style': 'bibtex'}
-    response_bytes = requests.get(url, headers=headers).content
-    response_string = response_bytes.decode("utf-8")
-    bibtex_object = bibtexparser.loads(response_string)
-
-    try:
-        article = bibtex_object.entries[0]
-    except IndexError:
-        return None
-
-    new_article = {
-        'author': article.get('author'),
-        'title': article.get('title'),
-        'journal': article.get('journal'),
-        'volume': article.get('volume'),
-        'doi': article.get('doi'),
-        'pages': article.get('pages'),
-        'electronic_id': article.get('ID'),
-        'issue_nr': article.get('number'),
-        'keywords': article.get('keywords'),
-        # MISSING: KEYWORDS
-        'year': datetime(year=int(article.get('year')), month=1, day=1),
-    }
-
-    return Article.objects.create(**new_article)
-
-
-def to_decimal(string):
-    if not isinstance(string, float):
-        illegal_characters = re.search('([^0-9^.^,^-])', string)
-        if illegal_characters:
-            return illegal_characters
-        else:
-            rep = re.compile('(\-?\d*\.?\d+)')
-
-            result = rep.search(string)
-            if result:
-                return result.group(0)
-            else:
-                return None
-    else:
-        return string
-
-
-def locate_start_data(sheet):
-    # Locate control tag start row
-    start_data = None
-    for row_index in range(sheet.nrows):
-        if "**%BEGIN%**" in sheet.row_values(row_index, 0, 1):
-            start_data = row_index + 2
-            break
-    return start_data
-
-
-def get_or_create_article(article_doi):
-    try:
-        article = Article.objects.get(doi__iexact=article_doi)
-    except ObjectDoesNotExist:
-        article = get_DOI_metadata(article_doi)
-    return article
+from .helpers import get_or_create_article, locate_start_data, to_decimal
+from .models import Article, Molecule, Spectrum, Performance, Contribution
 
 
 def validate_raw_data(article_form, molecule_form, spectrum_form, performance_form, user):
@@ -209,17 +140,17 @@ def file_upload(request):
             # Iterate over attribute error, for every row
             errors = []
             for row_nr, row_data in enumerate(results):
-                for instance in row_data:
+                for instance in row_data.values():
                     if not hasattr(instance, 'pk'):
                         for k, v in instance.errors.items():
                             errors.append(
-                                {'row': start_data + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
+                                {'row': start_data + 1 + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
 
             if errors:
                 messages.add_message(request, messages.ERROR, 'Upload failed')
                 return render(request, 'dye/file-upload.html', context={'file_form': file_form, 'errors': errors})
             else:
-                Contribution.objects.create(results)
+                Contribution.objects.create_from_data(results, user=user)
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
             return redirect(reverse('dye:file-upload'))
