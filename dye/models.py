@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from extended_choices import Choices
 import uuid
 
-STATES = Choices(
+APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
     ('APPROVED', 2, 'Approved'),
     ('DENIED', 3, 'Denied'),
@@ -33,7 +33,7 @@ class Molecule(models.Model):
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
-    status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     def __str__(self):
         return self.inchi
@@ -54,7 +54,7 @@ class Article(models.Model):
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
-    status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     def __str__(self):
         return '{} - "{}", vol. {}, issue {}, {} '.format(self.doi, self.title, self.volume, self.issue_nr, self.year)
@@ -69,7 +69,7 @@ class Spectrum(models.Model):
     molecule = models.OneToOneField(Molecule, related_name='spectrum')
     article = models.ForeignKey(Article, related_name='spectra')
 
-    status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     class Meta:
         unique_together = ('molecule', 'article')
@@ -104,7 +104,7 @@ class Performance(models.Model):
     article = models.ForeignKey(Article, related_name='performances')
     molecule = models.ForeignKey(Molecule, related_name='performances')
 
-    status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     def __str__(self):
         return str(self.molecule)
@@ -146,6 +146,9 @@ class Contribution(models.Model):
     specta = models.ManyToManyField(Spectrum)
     molecules = models.ManyToManyField(Molecule)
 
+    created = models.DateTimeField(auto_now_add=True)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
+
     objects = ContributionManager()
 
     class Meta:
@@ -153,3 +156,13 @@ class Contribution(models.Model):
             ("upload_performance_data", "Can upload performance data"),
         )
 
+    def set_status(self, status):
+        for group in [self.performances, self.articles, self.specta, self.performances]:
+            # https://docs.djangoproject.com/en/1.9/topics/db/queries/#updating-multiple-objects-at-once
+            group.all().update(status=status)
+
+    def approve(self):
+        self.set_status(APPROVAL_STATES.APPROVED)
+
+    def deny(self):
+        self.set_status(APPROVAL_STATES.DENIED)
