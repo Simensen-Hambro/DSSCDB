@@ -167,7 +167,7 @@ def file_upload(request):
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
-
+@login_required
 def performance_list(request):
     from itertools import chain
     performance_list = Performance.objects.all()
@@ -204,7 +204,7 @@ def performance_list(request):
 
     return render(request, 'dye/performance_list.html', context)
 
-
+@login_required
 def performance_details(request, short_id):
     try:
         performance = Performance.objects.get(short_id=short_id)
@@ -217,7 +217,7 @@ def performance_details(request, short_id):
 
     return render(request, 'dye/performance_detail.html', context)
 
-
+@login_required
 def contributions_evaluation_overview(request):
     to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
     ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
@@ -233,12 +233,12 @@ def contributions_evaluation_overview(request):
         formset = ApprovalFormSet(
             queryset=Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING]))
     context = {
-        'to_evaluate': to_evaluate,
+        'contributions': to_evaluate,
         'formset': formset,
     }
     return render(request, 'dye/evaluate_contributions.html', context=context)
 
-
+@login_required
 def single_contribution_evaluation(request, contribution):
     contribution = Contribution.objects.get(pk=contribution)
     performances = contribution.performances.all()
@@ -253,3 +253,9 @@ def single_contribution_evaluation(request, contribution):
                                      APPROVAL_STATES.for_value(contribution.status).display))
             return redirect(reverse("dye:evaluate-contributions"))
     return render(request, 'dye/single_evaluation.html', context={'approval_form': approval_form})
+
+@login_required
+def my_contributions(request):
+    my_contributions = Contribution.objects.filter(user=request.user)
+    return render(request, 'dye/my_contributions.html', context={'contributions':my_contributions})
+

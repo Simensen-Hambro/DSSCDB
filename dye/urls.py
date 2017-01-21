@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^performance-detail/(?P<short_id>[0-9a-f]{8})/$', views.performance_details, name='performance-detail'),
     url(r'^contributions/(?P<contribution>[0-9]+)$', views.single_contribution_evaluation, name='single-evaluation'),
     url(r'^contributions', views.contributions_evaluation_overview, name='evaluate-contributions'),
+    url(r'^my-contributions', views.my_contributions, name='my-contributions'),
 ]
