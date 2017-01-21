@@ -15,8 +15,8 @@ from django.shortcuts import reverse
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
+PYTHON_2_ENV = '/Users/martsime/miniconda3/envs/test/bin/python'
+GENERATE_IMAGE_SCRIPT = BASE_DIR + '/generate_molecule_image.py'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -25,9 +25,10 @@ SECRET_KEY = '@&$!ob(=ba&#-jhflz89k#ms8e^n&(snei88zr#n(_8i67t*o='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
+context_processors = [
+    'django.template.context_processors.media',
+]
 
 # Application definition
 
@@ -41,8 +42,8 @@ INSTALLED_APPS = [
     'DSSCDB',
     'dye',
     'usermanagement',
-    'sorl.thumbnail',           # Image thumbnails and caching
-    'extended_choices',         # Better enumeration support for choices
+    'sorl.thumbnail',  # Image thumbnails and caching
+    'extended_choices',  # Better enumeration support for choices
     'bootstrap3',
     'django.contrib.flatpages',
     'django.contrib.sites',
@@ -75,11 +76,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
-    },
+},
 ]
 
 WSGI_APPLICATION = 'DSSCDB.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -90,7 +90,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -110,7 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -124,18 +122,22 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
     '/var/www/static/',
 ]
 
 LOGIN_URL = '/user/login/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+THUMBNAIL_DEBUG = True
+THUMBNAIL_FORMAT = 'PNG'
+THUMBNAIL_QUALITY = 100
 POST_OFFICE = {
     'LOG_LEVEL': 2,
     'DEFAULT_PRIORITY': 'now',
@@ -148,3 +150,26 @@ EMAIL_PORT = '25'
 EMAIL_HOST_USER = ''
 DEFAULT_FROM_MAIL = 'carl.j.v.hambro@ntnu.no'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+        'image_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'image.log',
+        },
+    },
+    'loggers': {
+        'image': {
+            'handlers': ['image_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
