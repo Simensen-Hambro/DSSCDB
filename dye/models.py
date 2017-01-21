@@ -2,12 +2,21 @@ from django.db import models
 from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
 from extended_choices import Choices
+import uuid
 
 STATES = Choices(
     ('WAITING', 1, 'Waiting'),
     ('APPROVED', 2, 'Approved'),
     ('DENIED', 3, 'Denied'),
 )
+
+def generate_short_id():
+    id = uuid.uuid4().hex[:8]
+    try:
+        Performance.objects.get(short_id=id)
+        return Performance.generate_short_id()
+    except Performance.DoesNotExist:
+        return id
 
 
 class Spreadsheet(models.Model):
@@ -71,7 +80,9 @@ class Spectrum(models.Model):
         return '{} - abs. max {}, emi. max {}'.format(self.molecule, self.absorption_maxima, self.emission_maxima)
 
 
+
 class Performance(models.Model):
+
     voc = models.DecimalField(verbose_name='VOC', decimal_places=4, max_digits=15)
     jsc = models.DecimalField(verbose_name='JSC', decimal_places=5, max_digits=15)
     ff = models.DecimalField(verbose_name='FF', decimal_places=5, max_digits=13)
@@ -86,6 +97,7 @@ class Performance(models.Model):
     solar_simulator = models.CharField(max_length=1000)
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
+    short_id = models.CharField(max_length=8, unique=True, default=generate_short_id)
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -97,8 +109,11 @@ class Performance(models.Model):
     def __str__(self):
         return str(self.molecule)
 
+
+
     class Meta:
         verbose_name = "DSSC performance"
+
 
 
 class ContributionManager(models.Manager):
@@ -137,3 +152,4 @@ class Contribution(models.Model):
         permissions = (
             ("upload_performance_data", "Can upload performance data"),
         )
+
