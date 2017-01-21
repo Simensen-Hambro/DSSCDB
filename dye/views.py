@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
-from django.shortcuts import reverse, render
+from django.shortcuts import reverse, render, Http404
+
 
 from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm
 from .helpers import get_or_create_article, locate_start_data, to_decimal
@@ -157,9 +158,21 @@ def file_upload(request):
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
-def list_performance(request):
+def performance_list(request):
     context = {
         'performances': Performance.objects.all()
     }
 
-    return render(request, 'dye/list.html', context)
+    return render(request, 'dye/performance_list.html', context)
+
+def performance_details(request, short_id):
+    try:
+        performance = Performance.objects.get(short_id=short_id)
+    except Performance.DoesNotExist:
+        raise Http404
+
+    context = {
+        'performance': performance
+    }
+
+    return render(request, 'dye/performance_detail.html', context)

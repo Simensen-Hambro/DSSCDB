@@ -66,7 +66,7 @@ class Spectrum(models.Model):
     solvent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
-    molecule = models.ForeignKey(Molecule)
+    molecule = models.OneToOneField(Molecule, related_name='spectrum')
     article = models.ForeignKey(Article, related_name='spectra')
 
     status = models.PositiveSmallIntegerField(choices=STATES, default=STATES.WAITING)

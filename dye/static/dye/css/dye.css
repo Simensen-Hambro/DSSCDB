@@ -3,9 +3,14 @@
     height: 200px;
 }
 
+.molecule-detail-image {
+    margin: 0 auto 15px auto;
+}
+
 .image-column {
     width: 200px;
     max-width: 200px;
+    min-width: 200px;
 }
 
 th {
@@ -15,16 +20,17 @@ th {
     font-size: 17px;
 }
 
-.table>tbody>tr>td.vertical-align {
+.table > tbody > tr > td.vertical-align {
     vertical-align: middle;
 }
 
-.table>thead>tr>th, .table>tbody>tr>td {
+.table > tbody > tr > td {
     border: 1px solid rgba(44, 62, 80, 0.30);
 }
 
-.table-bordered {
+.table-bordered, .table > thead > tr > th {
     border: 1px solid var(--nav-color);
+
 }
 
 .info-image {
@@ -34,4 +40,22 @@ th {
 
 .info-image-column {
     text-align: center;
+}
+
+.list-group-item-heading {
+    border-bottom: 1px solid #BAC1C8;
+    padding-bottom: 5px;
+}
+
+dl dd {
+    word-wrap: break-word;
+    padding-bottom: 5px;
+}
+
+dl {
+    margin-bottom: 0;
+}
+
+.detail-panel {
+    margin-bottom: 0;
 }

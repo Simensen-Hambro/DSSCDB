@@ -1,0 +1,145 @@
+{% extends 'DSSCDB/base.html' %}
+{% load thumbnail %}
+{% load static %}
+
+{% block styles %}
+  <link href="{% static 'DSSCDB/css/image_viewer.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'dye/css/dye.css' %}" rel="stylesheet" type="text/css">
+{% endblock styles %}
+
+{% block head-scripts %}
+  <script type="text/javascript" src="{% static 'DSSCDB/javascript/image_viewer.min.js' %}"></script>
+{% endblock head-scripts %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Performance data</h3>
+          </div>
+          <div class="panel-body panel-content">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Molecule</h3>
+                  </div>
+                  <div class="panel-body">
+                    <img src="/media/{{ performance.molecule.image }}"
+                         alt="Responsive image" class="materialboxed img-thumbnail molecule-detail-image">
+                    <div class="panel panel-default detail-panel">
+                      <div class="panel-body">
+                        <dl>
+                          <dt>INCHI</dt>
+                          <dd>{{ performance.molecule.inchi }}</dd>
+                          <dt>SMILES</dt>
+                          <dd>{{ performance.molecule.smiles }}</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Spectrum</h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="panel panel-default detail-panel">
+                      <div class="panel-body">
+                        <dl>
+                          <dt>ABSORPTION MAXIMA</dt>
+                          <dd>{{ performance.molecule.spectrum.absorption_maxima }}</dd>
+                          <dt>EMISSION MAXIMA</dt>
+                          <dd>{{ performance.molecule.spectrum.emission_maxima }}</dd>
+                          <dt>SOLVENT</dt>
+                          <dd>{{ performance.molecule.spectrum.solvent }}</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Article</h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="panel panel-default detail-panel">
+                      <div class="panel-body">
+                        <dl>
+                          <dt>DOI</dt>
+                          <dd>
+                            <a href="http://dx.doi.org/{{ performance.article.doi }}">{{ performance.article.doi }}</a>
+                          </dd>
+                          <dt>TITLE</dt>
+                          <dd>{{ performance.article.title }}</dd>
+                          <dt>AUTHOR</dt>
+                          <dd>{{ performance.article.author }}</dd>
+                          <dt>JOURNAL</dt>
+                          <dd>{{ performance.article.journal }}</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Performance</h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="panel panel-default detail-panel">
+                      <div class="panel-body">
+                        <dl>
+                          <dt>VOC</dt>
+                          <dd>{{ performance.voc }}</dd>
+                          <dt>JSC</dt>
+                          <dd>{{ performance.jsc }}</dd>
+                          <dt>FF</dt>
+                          <dd>{{ performance.ff }}</dd>
+                          <dt>PCE</dt>
+                          <dd>{{ performance.pce }}</dd>
+                          <dt>ELECTROLYTE</dt>
+                          <dd>{{ performance.electrolyte }}</dd>
+                          <dt>ACTIVE AREA</dt>
+                          <dd>{{ performance.active_area }}</dd>
+                          <dt>COADSORBENT</dt>
+                          <dd>{{ performance.co_adsorbent }}</dd>
+                          <dt>COSENSITIZER</dt>
+                          <dd>{{ performance.co_sensitizer }}</dd>
+                          <dt>SEMICONDUCTOR</dt>
+                          <dd>{{ performance.semiconductor }}</dd>
+                          <dt>DYE LOADING</dt>
+                          <dd>{{ performance.dye_loading }}</dd>
+                          <dt>EXPOSURE TIME</dt>
+                          <dd>{{ performance.exposure_time }}</dd>
+                          <dt>SOLAR SIMULATOR</dt>
+                          <dd>{{ performance.solar_simulator }}</dd>
+                          <dt>DSSC KEYWORDS</dt>
+                          <dd>{{ performance.keywords }}</dd>
+                          <dt>DSSC COMMENTS</dt>
+                          <dd>{{ performance.comment }}</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+      $('.materialboxed').materialbox();
+    });
+  </script>
+{% endblock content %}
+
