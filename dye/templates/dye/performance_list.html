@@ -62,10 +62,21 @@
                     </a>
                   {% endif %}
                 </li>
-                {% for page in performances.paginator.page_range %}
-                <li {% if page == performances.number %}class="active"{% endif %}>
-                  <a href="?page={{ page }}">{{ page }}</a>
-                </li>
+                {% for page in pages %}
+                  {% if forloop.first and page > 1 %}
+                    <li>
+                      <a href="?page={{ page }}">...</a>
+                    </li>
+                  {% elif forloop.last and page < num_pages %}
+                    <li>
+                      <a href="?page={{ page }}">...</a>
+                    </li>
+                  {% else %}
+                    <li {% if page == performances.number %}class="active"{% endif %}>
+                      <a href="?page={{ page }}">{{ page }}</a>
+                    </li>
+                  {% endif %}
+
                 {% endfor %}
                 <li>
                   {% if performances.has_next %}

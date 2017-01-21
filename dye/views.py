@@ -160,19 +160,37 @@ def file_upload(request):
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
 def performance_list(request):
+    from itertools import chain
     performance_list = Performance.objects.all()
-    paginator = Paginator(performance_list, 5)
+    for i in range(10):
+        performance_list = list(chain(performance_list, Performance.objects.all()))
+    paginator = Paginator(performance_list, 10)
 
     page = request.GET.get('page')
     try:
         performances = paginator.page(page)
+        page = int(page)
     except PageNotAnInteger:
         performances = paginator.page(1)
+        page = 1
     except EmptyPage:
         performances = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    if page - 5 < 1:
+        first_page = 1
+    else:
+        first_page = page - 5
+
+    if page + 5 > paginator.num_pages:
+        last_page = paginator.num_pages
+    else:
+        last_page = page + 5
 
     context = {
-        'performances': performances
+        'performances': performances,
+        'pages': [i for i in range(first_page, last_page + 1)],
+        'num_pages': paginator.num_pages,
     }
 
     return render(request, 'dye/performance_list.html', context)
