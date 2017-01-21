@@ -13,21 +13,7 @@ def generate_image(sender, instance, signal, created, **kwargs):
     if created:
         image_name = uuid4().hex[:10]
         smiles = instance.smiles
-        format = 'png'
-        try:
-            wrds = smiles.split(" ")
-            if len(wrds) == 1:
-                mol = Chem.MolFromSmiles(smiles)
-            else:
-                mol = Chem.MolFromSmiles(wrds[0])
-            AllChem.Compute2DCoords(mol)
-            image_url = "molecules/" + image_name + "." + format
-            image_store_url = "static/" + image_url
-            Draw.MolToFile(mol, image_store_url, size=(500, 500), type=format)
-            instance.image = image_url
-            instance.save()
-        except Exception as e:
-            print('Failed to generate image, {}'.format(e))
+        call_command('generateimage', instance.pk, smiles, 'svg')
 
 
 

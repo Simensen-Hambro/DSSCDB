@@ -96,7 +96,7 @@ def file_upload(request):
             upload.user = user
             upload.save()
 
-            book = open_workbook('./' + str(upload.file))
+            book = open_workbook("media/" + str(upload.file))
             sheet = book.sheet_by_index(0)
 
             start_data = locate_start_data(sheet)
