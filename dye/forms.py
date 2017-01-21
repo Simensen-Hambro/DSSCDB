@@ -1,5 +1,5 @@
 from django import forms
-from .models import Molecule, Spectrum, Performance, Spreadsheet
+from .models import Molecule, Spectrum, Performance, Spreadsheet, Contribution, APPROVAL_STATES
 
 
 class ArticleForm(forms.Form):
@@ -52,4 +52,14 @@ class SpreadsheetForm(forms.ModelForm):
         model = Spreadsheet
         fields = [
             'file'
+        ]
+
+
+class ApprovalForm(forms.ModelForm):
+    confirm = forms.BooleanField(required=True, label="I've thoroughly checked the data")
+
+    class Meta:
+        model = Contribution
+        fields = [
+            'status'
         ]
