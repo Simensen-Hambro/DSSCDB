@@ -4,6 +4,7 @@ from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from django.shortcuts import reverse, render, Http404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm
@@ -159,8 +160,19 @@ def file_upload(request):
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
 def performance_list(request):
+    performance_list = Performance.objects.all()
+    paginator = Paginator(performance_list, 5)
+
+    page = request.GET.get('page')
+    try:
+        performances = paginator.page(page)
+    except PageNotAnInteger:
+        performances = paginator.page(1)
+    except EmptyPage:
+        performances = paginator.page(paginator.num_pages)
+
     context = {
-        'performances': Performance.objects.all()
+        'performances': performances
     }
 
     return render(request, 'dye/performance_list.html', context)

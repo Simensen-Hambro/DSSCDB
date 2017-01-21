@@ -41,12 +41,45 @@
                   <td class="vertical-align">{{ performance.jsc }}</td>
                   <td class="vertical-align">{{ performance.ff }}</td>
                   <td class="vertical-align">{{ performance.pce }}</td>
-                  <td class="vertical-align info-image-column"><a href="{% url 'dye:performance-detail' performance.short_id %}"><img
+                  <td class="vertical-align info-image-column"><a
+                          href="{% url 'dye:performance-detail' performance.short_id %}"><img
                           src="{% static 'DSSCDB/images/info.svg' %}" class="info-image"></a></td>
                 </tr>
               {% endfor %}
               </tbody>
             </table>
+            <nav aria-label="Page navigation">
+
+              <ul class="pagination">
+                <li>
+                  {% if performances.has_previous %}
+                    <a href="?page={{ performances.previous_page_number }}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  {% else %}
+                    <a href="?page={{ performances.number }}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  {% endif %}
+                </li>
+                {% for page in performances.paginator.page_range %}
+                <li {% if page == performances.number %}class="active"{% endif %}>
+                  <a href="?page={{ page }}">{{ page }}</a>
+                </li>
+                {% endfor %}
+                <li>
+                  {% if performances.has_next %}
+                    <a href="?page={{ performances.next_page_number }}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  {% else %}
+                    <a href="?page={{ performances.number }}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  {% endif %}
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
