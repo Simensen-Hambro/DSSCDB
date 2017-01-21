@@ -1,19 +1,18 @@
+from itertools import chain
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import redirect
-from django.shortcuts import reverse, render
-from django.forms import modelformset_factory
-from django.shortcuts import reverse, render, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.db import transaction
+from django.forms import modelformset_factory
+from django.shortcuts import redirect
+from django.shortcuts import reverse, render, Http404
 
 from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm
 from .helpers import get_or_create_article, locate_start_data, to_decimal
 from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
-
-from django.db import transaction
 
 
 @transaction.atomic
@@ -167,9 +166,81 @@ def file_upload(request):
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
+
 @login_required
 def performance_list(request):
-    from itertools import chain
+    context = get_performances(request, {})
+    return render(request, 'dye/performance_list.html', context)
+
+
+@login_required
+def performance_details(request, short_id):
+    try:
+        performance = Performance.objects.get(short_id=short_id)
+    except Performance.DoesNotExist:
+        raise Http404
+
+    context = {
+        'performance': performance
+    }
+
+    return render(request, 'dye/performance_detail.html', context)
+
+
+@login_required
+def contributions_evaluation_overview(request):
+    to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
+    ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
+
+    if request.method == 'POST':
+        formset = ApprovalFormSet(request.POST)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for instance in instances.changed_objects():
+                instance.save()
+
+    else:
+        formset = ApprovalFormSet(
+            queryset=Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING]))
+    context = {
+        'contributions': to_evaluate,
+        'formset': formset,
+    }
+    return render(request, 'dye/evaluate_contributions.html', context=context)
+
+
+@login_required
+def single_contribution_evaluation(request, contribution):
+    contribution = Contribution.objects.get(pk=contribution)
+    performances = contribution.performances.all()
+
+    approval_form = ApprovalForm(request.POST or None, instance=contribution)
+
+    if request.method == 'POST':
+        if approval_form.is_valid():
+            approval_form.save()
+            messages.add_message(request, messages.SUCCESS,
+                                 'The contribution has been marked as {}'.format(
+                                     APPROVAL_STATES.for_value(contribution.status).display))
+            return redirect(reverse("dye:evaluate-contributions"))
+    return render(request, 'dye/single_evaluation.html', context={'approval_form': approval_form})
+
+
+@login_required
+def my_contributions(request):
+    my_contributions = Contribution.objects.filter(user=request.user)
+    return render(request, 'dye/my_contributions.html', context={'contributions': my_contributions})
+
+
+def range_search_performance(request):
+    pass
+
+
+def get_performances(request, context, **search):
+    """
+    Returns the requested performances and pagination inside the context
+    """
+
     performance_list = Performance.objects.all()
     for i in range(10):
         performance_list = list(chain(performance_list, Performance.objects.all()))
@@ -196,66 +267,8 @@ def performance_list(request):
     else:
         last_page = page + 5
 
-    context = {
-        'performances': performances,
-        'pages': [i for i in range(first_page, last_page + 1)],
-        'num_pages': paginator.num_pages,
-    }
+    context['performances'] = performances
+    context['pages'] = [i for i in range(first_page, last_page + 1)]
+    context['num_pages'] = paginator.num_pages
 
-    return render(request, 'dye/performance_list.html', context)
-
-@login_required
-def performance_details(request, short_id):
-    try:
-        performance = Performance.objects.get(short_id=short_id)
-    except Performance.DoesNotExist:
-        raise Http404
-
-    context = {
-        'performance': performance
-    }
-
-    return render(request, 'dye/performance_detail.html', context)
-
-@login_required
-def contributions_evaluation_overview(request):
-    to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
-    ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
-
-    if request.method == 'POST':
-        formset = ApprovalFormSet(request.POST)
-        if formset.is_valid():
-            instances = formset.save(commit=False)
-            for instance in instances.changed_objects():
-                instance.save()
-
-    else:
-        formset = ApprovalFormSet(
-            queryset=Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING]))
-    context = {
-        'contributions': to_evaluate,
-        'formset': formset,
-    }
-    return render(request, 'dye/evaluate_contributions.html', context=context)
-
-@login_required
-def single_contribution_evaluation(request, contribution):
-    contribution = Contribution.objects.get(pk=contribution)
-    performances = contribution.performances.all()
-
-    approval_form = ApprovalForm(request.POST or None, instance=contribution)
-
-    if request.method == 'POST':
-        if approval_form.is_valid():
-            approval_form.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 'The contribution has been marked as {}'.format(
-                                     APPROVAL_STATES.for_value(contribution.status).display))
-            return redirect(reverse("dye:evaluate-contributions"))
-    return render(request, 'dye/single_evaluation.html', context={'approval_form': approval_form})
-
-@login_required
-def my_contributions(request):
-    my_contributions = Contribution.objects.filter(user=request.user)
-    return render(request, 'dye/my_contributions.html', context={'contributions':my_contributions})
-
+    return context
