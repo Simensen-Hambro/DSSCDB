@@ -1,5 +1,15 @@
 {% extends 'DSSCDB/base.html' %}
+{% load thumbnail %}
 {% load static %}
+
+{% block styles %}
+  <link href="{% static 'DSSCDB/css/image_viewer.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'dye/css/dye.css' %}" rel="stylesheet" type="text/css">
+{% endblock styles %}
+
+{% block head-scripts %}
+  <script type="text/javascript" src="{% static 'DSSCDB/javascript/image_viewer.min.js' %}"></script>
+{% endblock head-scripts %}
 {% block content %}
   <div class="container">
     <div class="row">
@@ -9,20 +19,30 @@
             <h3 class="panel-title">Performance data</h3>
           </div>
           <div class="panel-body panel-content">
-            <table class="table">
+            <table class="table table-bordered table-hover">
               <thead>
               <tr>
-                <th>Image</th>
-                <th>Value 1</th>
-                <th>Value 2</th>
+                <th>Molecule</th>
+                <th>VOC</th>
+                <th>JSC</th>
+                <th>FF</th>
+                <th>PCE</th>
+                <th>Details</th>
               </tr>
               </thead>
               <tbody>
               {% for performance in performances %}
                 <tr>
-                  <td><img src="{%  static performance.molecule.image %}" width="160" height="160" alt="Responsive image"></td>
-                  <td>{{ performance.voc }}</td>
-                  <td>{{ performance.jsc }}</td>
+                  <td class="image-column">
+                    <img src="/media/{{ performance.molecule.image }}"
+                         alt="Responsive image" class="materialboxed img-thumbnail molecule-thumbnail">
+                  </td>
+                  <td class="vertical-align">{{ performance.voc }}</td>
+                  <td class="vertical-align">{{ performance.jsc }}</td>
+                  <td class="vertical-align">{{ performance.ff }}</td>
+                  <td class="vertical-align">{{ performance.pce }}</td>
+                  <td class="vertical-align info-image-column"><a href="#"><img
+                          src="{% static 'DSSCDB/images/info.svg' %}" class="info-image"></a></td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -32,5 +52,10 @@
       </div>
     </div>
   </div>
+  <script>
+    $(function () {
+      $('.materialboxed').materialbox();
+    });
+  </script>
 {% endblock content %}
 
