@@ -3,15 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
+from django.shortcuts import reverse, render
+from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm
+from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm
 from .helpers import get_or_create_article, locate_start_data, to_decimal
-from .models import Article, Molecule, Spectrum, Performance, Contribution
+from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
+
+from django.db import transaction
 
 
+@transaction.atomic
 def validate_raw_data(article_form, molecule_form, spectrum_form, performance_form, user):
     try:
         article = get_or_create_article(article_form.cleaned_data.get('doi'))
@@ -23,12 +28,13 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
             try:
                 # We try to fetch the molecule
                 molecule_form.is_valid()
-                molecule = Molecule.objects.get(smiles=molecule_form.data.get('smiles'))
+                molecule = Molecule.objects.get(inchi=molecule_form.data.get('inchi'))
             except ObjectDoesNotExist:
                 # Molecule was not found, and therefore is_valid should now pass unless the user has erred
                 if not molecule_form.is_valid():
                     raise FieldError
-                molecule = molecule_form.save(commit=False)
+                molecule_form.article = article
+                molecule = molecule_form.save()
 
             try:
                 # Try to get spectrum
@@ -38,7 +44,8 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 if not spectrum_form.is_valid():
                     raise FieldError
                 spectrum = spectrum_form.save(commit=False)
-
+                spectrum.article, spectrum.molecule = article, molecule
+                spectrum.save()
             try:
                 # Try to get performance
                 # TODO: Does this "article, molecule" restriction make sense?
@@ -48,7 +55,8 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                     raise FieldError
 
                 performance = performance_form.save(commit=False)
-                performance.user = user
+                performance.article, performance.molecule, performance.user = article, molecule, user
+                performance.save()
 
             return {'article': article, 'molecule': molecule, 'spectrum': spectrum,
                     'performance': performance}
@@ -159,6 +167,7 @@ def file_upload(request):
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
+
 def performance_list(request):
     from itertools import chain
     performance_list = Performance.objects.all()
@@ -195,6 +204,7 @@ def performance_list(request):
 
     return render(request, 'dye/performance_list.html', context)
 
+
 def performance_details(request, short_id):
     try:
         performance = Performance.objects.get(short_id=short_id)
@@ -206,3 +216,40 @@ def performance_details(request, short_id):
     }
 
     return render(request, 'dye/performance_detail.html', context)
+
+
+def contributions_evaluation_overview(request):
+    to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
+    ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
+
+    if request.method == 'POST':
+        formset = ApprovalFormSet(request.POST)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for instance in instances.changed_objects():
+                instance.save()
+
+    else:
+        formset = ApprovalFormSet(
+            queryset=Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING]))
+    context = {
+        'to_evaluate': to_evaluate,
+        'formset': formset,
+    }
+    return render(request, 'dye/evaluate_contributions.html', context=context)
+
+
+def single_contribution_evaluation(request, contribution):
+    contribution = Contribution.objects.get(pk=contribution)
+    performances = contribution.performances.all()
+
+    approval_form = ApprovalForm(request.POST or None, instance=contribution)
+
+    if request.method == 'POST':
+        if approval_form.is_valid():
+            approval_form.save()
+            messages.add_message(request, messages.SUCCESS,
+                                 'The contribution has been marked as {}'.format(
+                                     APPROVAL_STATES.for_value(contribution.status).display))
+            return redirect(reverse("dye:evaluate-contributions"))
+    return render(request, 'dye/single_evaluation.html', context={'approval_form': approval_form})

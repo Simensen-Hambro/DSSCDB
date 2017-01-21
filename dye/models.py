@@ -10,6 +10,7 @@ APPROVAL_STATES = Choices(
     ('DENIED', 3, 'Denied'),
 )
 
+
 def generate_short_id():
     id = uuid.uuid4().hex[:8]
     try:
@@ -33,8 +34,6 @@ class Molecule(models.Model):
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
-    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
-
     def __str__(self):
         return self.inchi
 
@@ -53,8 +52,6 @@ class Article(models.Model):
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
-
-    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     def __str__(self):
         return '{} - "{}", vol. {}, issue {}, {} '.format(self.doi, self.title, self.volume, self.issue_nr, self.year)
@@ -76,13 +73,14 @@ class Spectrum(models.Model):
         verbose_name = "Molecule spectrum"
         verbose_name_plural = "Molecule spectra"
 
+    def set_status(self, status):
+        self.status = status
+
     def __str__(self):
         return '{} - abs. max {}, emi. max {}'.format(self.molecule, self.absorption_maxima, self.emission_maxima)
 
 
-
 class Performance(models.Model):
-
     voc = models.DecimalField(verbose_name='VOC', decimal_places=4, max_digits=15)
     jsc = models.DecimalField(verbose_name='JSC', decimal_places=5, max_digits=15)
     ff = models.DecimalField(verbose_name='FF', decimal_places=5, max_digits=13)
@@ -106,14 +104,14 @@ class Performance(models.Model):
 
     status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
+    def set_status(self, status):
+        self.status = status
+
     def __str__(self):
         return str(self.molecule)
 
-
-
     class Meta:
         verbose_name = "DSSC performance"
-
 
 
 class ContributionManager(models.Manager):
@@ -122,28 +120,18 @@ class ContributionManager(models.Manager):
         for row in data_entry:
             article, molecule, spectrum, performance = row.get('article'), row.get('molecule'), \
                                                        row.get('spectrum'), row.get('performance')
-            if not article.pk:
-                article.save()
-                contribution.articles.add(article)
-            if not molecule.pk:
-                molecule.article = article
-                molecule.save()
-                contribution.molecules.add(molecule)
-            if not spectrum.pk:
-                spectrum.molecule, spectrum.article = molecule, article
-                spectrum.save()
-                contribution.specta.add(spectrum)
-                performance.article, performance.molecule = article, molecule
-            performance.save()
+            contribution.articles.add(article)
+            contribution.molecules.add(molecule)
+            contribution.specta.add(spectrum)
             contribution.performances.add(performance)
         return contribution
 
 
 class Contribution(models.Model):
     user = models.ForeignKey(User, related_name='contributions')
-    performances = models.ManyToManyField(Performance)
-    articles = models.ManyToManyField(Article)
-    specta = models.ManyToManyField(Spectrum)
+    performances = models.ManyToManyField(Performance, null=True, blank=True)
+    articles = models.ManyToManyField(Article, null=True, blank=True)
+    specta = models.ManyToManyField(Spectrum, null=True, blank=True)
     molecules = models.ManyToManyField(Molecule)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -156,13 +144,22 @@ class Contribution(models.Model):
             ("upload_performance_data", "Can upload performance data"),
         )
 
-    def set_status(self, status):
-        for group in [self.performances, self.articles, self.specta, self.performances]:
-            # https://docs.djangoproject.com/en/1.9/topics/db/queries/#updating-multiple-objects-at-once
-            group.all().update(status=status)
-
     def approve(self):
         self.set_status(APPROVAL_STATES.APPROVED)
 
     def deny(self):
         self.set_status(APPROVAL_STATES.DENIED)
+
+    def wait(self):
+        self.set_status(APPROVAL_STATES.WAITING)
+
+    def set_approval_state(self, status):
+        for obj in [self.performances.all(), self.specta.all()]:
+            for item in obj:
+                item.set_status(status)
+                item.save()
+
+    def save(self, *args, **kwargs):
+        super(Contribution, self).save(*args, **kwargs)
+        if self.pk:
+            self.set_approval_state(self.status)
