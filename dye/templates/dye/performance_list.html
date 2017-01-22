@@ -55,6 +55,8 @@
             {% endif %}
             {% if performances %}
               {% include 'dye/performance_list_table.html' %}
+            {% else %}
+              <p>There are no performances matching the selected query</p>
             {% endif %}
           </div>
         </div>
