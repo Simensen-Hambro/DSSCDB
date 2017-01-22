@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from extended_choices import Choices
 import uuid
 from validators import validate_inchi, validate_smiles
-from django.shortcuts import redirect, reverse
+from django.shortcuts import reverse
 
 APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
@@ -114,7 +114,7 @@ class Performance(models.Model):
         return str(self.molecule)
 
     def get_absolute_url(self):
-        return redirect(reverse("dye:single-upload", {'short_id': self.short_id}))
+        return reverse("dye:performance-detail", kwargs={'short_id': self.short_id})
 
     class Meta:
         verbose_name = "DSSC performance"

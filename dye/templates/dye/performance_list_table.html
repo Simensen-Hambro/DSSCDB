@@ -22,7 +22,7 @@
       <td class="vertical-align">{{ performance.ff }}</td>
       <td class="vertical-align">{{ performance.pce }}</td>
       <td class="vertical-align info-image-column"><a
-              href="{% url 'dye:performance-detail' performance.short_id %}"><img
+              href="{{ performance.get_absolute_url }}"><img
               src="{% static 'DSSCDB/images/info.svg' %}" class="info-image"></a></td>
     </tr>
   {% endfor %}
