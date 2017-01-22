@@ -13,26 +13,6 @@
     min-width: 200px;
 }
 
-th {
-    background-color: var(--nav-color);
-    color: white;
-    font-weight: normal;
-    font-size: 17px;
-}
-
-.table > tbody > tr > td.vertical-align {
-    vertical-align: middle;
-}
-
-.table > tbody > tr > td {
-    border: 1px solid rgba(44, 62, 80, 0.30);
-}
-
-.table-bordered, .table > thead > tr > th {
-    border: 1px solid var(--nav-color);
-
-}
-
 .info-image {
     width: 60px;
     height: 60px;

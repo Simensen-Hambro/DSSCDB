@@ -28,6 +28,7 @@ html, body {
     color: var(--white);
 }
 
+
 #main-menu {
     margin-bottom: 20px;
 }
@@ -68,6 +69,49 @@ form .alert {
 
 .full-page-panel {
     margin-bottom: 40px;
+}
+
+
+th {
+    background-color: var(--nav-color);
+    color: white;
+    font-weight: normal;
+    font-size: 17px;
+}
+
+table {
+    border-collapse: separate;
+}
+
+.table-bordered, .table {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.table > tbody > tr > td.vertical-align {
+    vertical-align: middle;
+}
+
+.table > tbody > tr > td {
+    border: 1px solid rgba(44, 62, 80, 0.30);
+}
+
+.table > thead > tr {
+    border: 1px solid var(--nav-color);
+}
+
+.table > thead:first-child > tr:first-child > th {
+    border: 1px solid var(--nav-color);
+}
+
+.table > thead > tr > th:first-child {
+    border: 1px solid var(--nav-color);
+    border-top-left-radius: 4px;
+}
+
+.table > thead > tr > th:last-child {
+    border: 1px solid var(--nav-color);
+    border-top-right-radius: 4px;
 }
 
 @media (min-width: 768px) {
