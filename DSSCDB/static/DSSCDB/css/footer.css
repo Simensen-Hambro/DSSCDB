@@ -1,60 +1,95 @@
 .footer {
-	background: #EDEFF1;
+    background: #EDEFF1;
+    background: white;
+    background: var(--nav-color);
     position: absolute;
-	height: auto;
-	width: 100%;
-	border-bottom: 1px solid #CCCCCC;
-	border-top: 1px solid #DDDDDD;
+    height: auto;
+    width: 100%;
+    border-bottom: 1px solid #CCCCCC;
+    border-top: 1px solid #DDDDDD;
     overflow: hidden;
 }
+
 .footer p {
-	margin: 0;
+    margin: 0;
 }
+
 .footer img {
-	max-width: 100%;
+    max-width: 100%;
 }
+
 .footer h3 {
-	border-bottom: 1px solid #BAC1C8;
-	font-size: 18px;
-	font-weight: 600;
-	line-height: 27px;
-	padding: 40px 0 10px;
-	text-transform: uppercase;
+    color: white;
+    border-bottom: 1px solid white;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 27px;
+    padding: 40px 0 10px;
+    text-transform: uppercase;
 }
+
 .footer ul {
-	font-size: 13px;
-	list-style-type: none;
-	margin-left: 0;
-	padding-left: 0;
-	margin-top: 15px;
+    font-size: 13px;
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+    margin-top: 15px;
 }
+
 .footer ul li a {
-	padding: 0 0 5px 0;
-	display: block;
+    padding: 0 0 5px 0;
+    display: block;
 }
 
 .supportLi h4 {
-	font-size: 20px;
-	font-weight: lighter;
-	line-height: normal;
-	margin-bottom: 0 !important;
-	padding-bottom: 0;
+    font-size: 20px;
+    font-weight: lighter;
+    line-height: normal;
+    margin-bottom: 0 !important;
+    padding-bottom: 0;
 }
 
 .footer-content {
     margin-top: -40px;
     margin-bottom: 10px;
+    margin-left: 20px;
 }
 
 .footer-bottom {
-	background: #E3E3E3;
-	border-top: 1px solid #DDDDDD;
-	padding-top: 10px;
-	padding-bottom: 10px;
+    background: var(--footer-color);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 10px solid var(--footer-color);
 }
+
+.footer-bottom p {
+    color: white;
+}
+
 .footer-bottom p.pull-left {
-	padding-top: 6px;
+    padding-top: 6px;
 }
-.payments {
-	font-size: 1.5em;
+
+.footer-panel ul li a {
+    color: white;
+}
+
+.footer-panel ul li a:hover {
+    color: var(--complement-color);
+}
+
+.footer-bottom p {
+    margin-left: 45px;
+}
+
+@media (min-width: 768px) {
+    .footer-bottom p {
+        margin-left: 30px;
+    }
+}
+
+@media (min-width: 992px) {
+}
+
+@media (min-width: 1200px) {
 }
