@@ -30,7 +30,6 @@ def get_DOI_metadata(doi):
         'electronic_id': article.get('ID'),
         'issue_nr': article.get('number'),
         'keywords': article.get('keywords'),
-        # MISSING: KEYWORDS
         'year': datetime(year=int(article.get('year')), month=1, day=1),
     }
 

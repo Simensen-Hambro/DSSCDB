@@ -57,7 +57,7 @@ class SpreadsheetForm(forms.ModelForm):
 
 
 class ApprovalForm(forms.ModelForm):
-    confirm = forms.BooleanField(required=True, label="I've thoroughly checked the data")
+    confirm = forms.BooleanField(required=True, label="I've thoroughly checked the data",)
 
     class Meta:
         model = Contribution
