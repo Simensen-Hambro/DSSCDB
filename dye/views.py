@@ -189,19 +189,22 @@ def contributions_evaluation_overview(request):
 
 
 @login_required
-def single_contribution_evaluation(request, short_id):
+def contribution_performances(request, short_id):
     contribution = Contribution.objects.get(short_id=short_id)
     performances = contribution.performances.all()
+    approval_form = None
 
-    approval_form = ApprovalForm(request.POST or None, instance=contribution)
+    if request.user.has_perm('dye.contribution.set_contribution_status'):
+        approval_form = ApprovalForm(request.POST or None, instance=contribution)
 
-    if request.method == 'POST':
-        if approval_form.is_valid():
-            approval_form.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 'The contribution has been marked as {}'.format(
-                                     APPROVAL_STATES.for_value(contribution.status).display))
-            return redirect(reverse("dye:evaluate-contributions"))
+        if request.method == 'POST':
+            if approval_form.is_valid():
+                approval_form.save()
+                messages.add_message(request, messages.SUCCESS,
+                                     'The contribution has been marked as {}'.format(
+                                         APPROVAL_STATES.for_value(contribution.status).display))
+                return redirect(reverse("dye:evaluate-contributions"))
+
     return render(request, 'dye/single_evaluation.html',
                   context={'approval_form': approval_form, 'performances': performances})
 

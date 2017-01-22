@@ -162,6 +162,7 @@ class Contribution(models.Model):
     class Meta:
         permissions = (
             ("upload_performance_data", "Can upload performance data"),
+            ("set_contribution_status", "Can change status on contributions")
         )
 
     def approve(self):

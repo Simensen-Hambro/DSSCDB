@@ -1,4 +1,4 @@
-{% for contribution in contributions %}
+{% if contributions %}
   <table class="table table-hover">
     <thead>
     <tr>
@@ -8,6 +8,7 @@
     </tr>
     </thead>
     <tbody>
+    {% for contribution in contributions %}
     <tr class="clickable-row" data-href="{{ contribution.get_absolute_url }}">
       <th><a
           href="{% url "user:admin-users" %}">{{ contribution.user.first_name }} {{ contribution.user.last_name }}</a>
@@ -15,8 +16,9 @@
       <td>{{ contribution.created|date:"j. F - H:i" }}</td>
       <td>{% if contribution.status == 1 %}Waiting{% elif contribution.status == 3 %}Denied{% endif %}</td>
     </tr>
+    {% endfor %}
     </tbody>
   </table>
-{% empty %}
+{% else %}
   There are no contributions here yet. <a href="{% url "dye:single-upload" %}"></a>
-{% endfor %}
+{% endif %}
