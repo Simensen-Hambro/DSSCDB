@@ -62,6 +62,14 @@ form .alert {
     font-weight: bold;
 }
 
+.panel {
+    margin-bottom: 15px;
+}
+
+.full-page-panel {
+    margin-bottom: 40px;
+}
+
 @media (min-width: 768px) {
     #main-menu {
         margin-bottom: 25px;
@@ -70,11 +78,6 @@ form .alert {
     .panel-content {
         padding: 25px 40px 10px 40px;
     }
-
-    .panel {
-        margin-bottom: 20px;
-    }
-
 }
 
 @media (min-width: 992px) {
