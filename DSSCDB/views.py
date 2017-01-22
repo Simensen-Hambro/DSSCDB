@@ -21,13 +21,9 @@ def contact_us(request):
         _, mail_to = zip(*settings.ADMINS)
 
         mail.send(
-            ['carljh@stud.ntnu.no'],
-            subject='Contact form submission',
-            message='You have been contacted! '
-                    'Who: {{ contact_name|default_if_none:"Not given" }} '
-                    'Email: {{ contact_email|default_if_none:"Not given" }} '
-                    'When: {% now "j. F - H:i" %} '
-                    'Message: {{message}}',
+            sender=settings.DEFAULT_FROM_MAIL,
+            recipients=list(mail_to),
+            template='contact_form_email',
             context={'message': form_data.cleaned_data.get('content'),
                      'contact_name': form_data.cleaned_data.get('contact_name'),
                      'contact_email': form_data.cleaned_data.get('contact_email')

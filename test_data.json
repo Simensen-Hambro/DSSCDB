@@ -96,5 +96,20 @@
       "organization": "NTNU",
       "affiliation": "Hei"
     }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 3,
+    "fields": {
+      "name": "contact_form_email",
+      "description": "The email that is sent to the webmasters when someone submits a message with the \"contact us\"-form.",
+      "created": "2017-01-22T17:23:08.520Z",
+      "last_updated": "2017-01-22T17:24:10.559Z",
+      "subject": "Contact form submission",
+      "content": "You have been contacted!\r\nWho: {{ contact_name|default_if_none:\"Not given\" }}\r\nEmail: {{ contact_email|default_if_none:\"Not given\" }}\r\nWhen: {% now \"j. F - H:i\" %}\r\nMessage: {{message}}'",
+      "html_content": "You have been contacted!<br>\r\nWho: {{ contact_name|default_if_none:\"Not given\" }}<br>\r\nEmail: {{ contact_email|default_if_none:\"Not given\" }}<br>\r\nWhen: {% now \"j. F - H:i\" %}<br><br>\r\nMessage: {{message}}'",
+      "language": "",
+      "default_template": null
+    }
   }
 ]
