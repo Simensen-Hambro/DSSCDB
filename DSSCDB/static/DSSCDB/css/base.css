@@ -129,3 +129,10 @@ table {
 
 @media (min-width: 1200px) {
 }
+
+/* Make icons vertically aligned and smaller */
+.menu-icon {
+    width: 18px;
+    padding-bottom: 5px;
+    margin-right: 2px;
+}

@@ -16,10 +16,18 @@
     </div>
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="{% url 'flatpages:django.contrib.flatpages.views.flatpage' 'about' %}">About</a></li>
+        <li><a href="{% url 'flatpages:django.contrib.flatpages.views.flatpage' 'about' %}">
+          <img class="menu-icon" src="{% static "DSSCDB/images/ic_info_outline_white_24px.svg" %}">
+          About</a>
+        </li>
+        <li><a href="{% url 'contact' %}"><img class="menu-icon" src="{% static "DSSCDB/images/ic_mail_outline_white_24px.svg" %}">
+          Contact us </a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false">Browse <span class="caret"></span></a>
+             aria-expanded="false">
+            <img class="menu-icon" src="{% static "DSSCDB/images/ic_list_white_24px.svg" %}">
+            Browse <span class="caret"></span>
+          </a>
           <ul class="dropdown-menu">
             <li><a href="{% url 'dye:performance-keyword-search' %}">Keyword</a></li>
             <li><a href="{% url 'dye:performance-range-search' %}">Range</a></li>
@@ -28,10 +36,14 @@
         </li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false">Upload <span class="caret"></span></a>
+             aria-expanded="false">
+            <img class="menu-icon" src="{% static "DSSCDB/images/ic_file_upload_white_24px.svg" %}">
+            Upload <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="{% url 'dye:single-upload' %}">Single record</a></li>
             <li><a href="{% url 'dye:file-upload' %}">File</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="{% url 'dye:my-contributions' %}">My contributions</a></li>
           </ul>
         </li>
       </ul>
@@ -42,9 +54,11 @@
         {% else %}
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-               aria-expanded="false"><span class="glyphicon glyphicon-user"
-                                           aria-hidden="true"></span> {{ request.user.first_name }} {{ request.user.last_name }}
-              <span class="caret"></span></a>
+               aria-expanded="false">
+              <img class="menu-icon" src="{% static "DSSCDB/images/ic_person_white_24px.svg" %}">
+              {{ request.user.first_name }} {{ request.user.last_name }}
+              <span class="caret"></span>
+            </a>
             <ul class="dropdown-menu">
               {% if request.user.is_staff %}
                 <li class="dropdown-header">Admin</li>
