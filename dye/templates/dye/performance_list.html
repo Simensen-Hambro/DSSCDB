@@ -44,6 +44,15 @@
                 {% endbuttons %}
               </form>
             {% endif %}
+            {% if keyword_form %}
+              <form action="" method="post" class="form" id="search-form">
+                {% csrf_token %}
+                {% bootstrap_form keyword_form %}
+                {% buttons %}
+                  <button type="submit" class="btn btn-primary submit-button">Search</button>
+                {% endbuttons %}
+              </form>
+            {% endif %}
             {% if performances %}
               {% include 'dye/performance_list_table.html' %}
             {% endif %}

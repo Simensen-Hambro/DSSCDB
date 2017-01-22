@@ -9,7 +9,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
 
 from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm, \
-    PerformanceRangeSearchForm
+    PerformanceRangeSearchForm, PerformanceKeywordSearchForm
 from .helpers import get_or_create_article, locate_start_data, to_decimal
 from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
@@ -246,10 +246,30 @@ def performance_range_search(request):
     context['range_form'] = form
     return render(request, 'dye/performance_list.html', context)
 
+@login_required
+def performance_keyword_search(request):
+    context = {}
+    if request.method == 'POST':
+        form = PerformanceKeywordSearchForm(request.POST)
+        if form.is_valid():
+            performances = get_performances(**form.cleaned_data)
+            context = paginate_performances(request, performances, context)
+    else:
+        form = PerformanceKeywordSearchForm()
+        performances = get_performances()
+        context = paginate_performances(request, performances, context)
+
+    context['keyword_form'] = form
+    return render(request, 'dye/performance_list.html', context)
 
 def get_performances(**search):
     performances = Performance.objects.all()
 
+    # Search after keyword
+    if search.get('keyword'):
+        performances = performances.filter(keywords__icontains=search.get('keyword'))
+
+    # Search after different range criterias
     if search.get('min_voc'):
         performances = performances.filter(voc__gte=search.get('min_voc'))
     if search.get('max_voc'):

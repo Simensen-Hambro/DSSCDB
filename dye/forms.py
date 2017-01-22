@@ -75,3 +75,7 @@ class PerformanceRangeSearchForm(forms.Form):
     max_ff = forms.DecimalField(label='max FF', decimal_places=5, max_digits=13, required=False)
     min_pce = forms.DecimalField(label='min PCE', decimal_places=5, max_digits=13, required=False)
     max_pce = forms.DecimalField(label='max PCE', decimal_places=5, max_digits=13, required=False)
+
+
+class PerformanceKeywordSearchForm(forms.Form):
+    keyword = forms.CharField(max_length=1000, required=False)
