@@ -3,6 +3,8 @@ from sorl.thumbnail import ImageField
 from django.contrib.auth.models import User
 from extended_choices import Choices
 import uuid
+from validators import validate_inchi, validate_smiles
+from django.shortcuts import redirect, reverse
 
 APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
@@ -27,8 +29,9 @@ class Spreadsheet(models.Model):
 
 
 class Molecule(models.Model):
-    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.")
-    inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
+    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.",
+                              validators=[validate_smiles])
+    inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True, validators=[validate_inchi])
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -110,6 +113,9 @@ class Performance(models.Model):
     def __str__(self):
         return str(self.molecule)
 
+    def get_absolute_url(self):
+        return redirect(reverse("dye:single-upload", {'short_id': self.short_id}))
+
     class Meta:
         verbose_name = "DSSC performance"
 
@@ -163,3 +169,6 @@ class Contribution(models.Model):
         super(Contribution, self).save(*args, **kwargs)
         if self.pk:
             self.set_approval_state(self.status)
+
+    def get_absolute_url(self):
+        return reverse("dye:single-evaluation", kwargs={'contribution': self.pk})

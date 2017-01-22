@@ -5,11 +5,10 @@
       <th>User</th>
       <th>Date</th>
       <th>Status</th>
-      <th>Performance</th>
     </tr>
     </thead>
     <tbody>
-    <tr>
+    <tr class="clickable-row" data-href="{{ contribution.get_absolute_url }}">
       <th><a
           href="{% url "user:admin-users" %}">{{ contribution.user.first_name }} {{ contribution.user.last_name }}</a>
       </th>
@@ -21,4 +20,10 @@
 {% empty %}
   There are no contributions here yet. <a href="{% url "dye:single-upload" %}"></a>
 {% endfor %}
-
+<script>
+  $(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>

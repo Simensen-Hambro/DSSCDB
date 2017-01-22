@@ -109,7 +109,7 @@ def file_upload(request):
 
             start_data = locate_start_data(sheet)
             if not start_data:
-                messages.add_message(messages.ERROR,
+                messages.add_message(request, messages.ERROR,
                                      'Could not find start-tag. Compare your sheet with the sample sheet.')
                 return redirect(reverse('dye:file-upload'))
 
@@ -202,13 +202,14 @@ def single_contribution_evaluation(request, contribution):
                                  'The contribution has been marked as {}'.format(
                                      APPROVAL_STATES.for_value(contribution.status).display))
             return redirect(reverse("dye:evaluate-contributions"))
-    return render(request, 'dye/single_evaluation.html', context={'approval_form': approval_form})
+    return render(request, 'dye/single_evaluation.html',
+                  context={'approval_form': approval_form, 'performances': performances})
 
 
 @login_required
 def my_contributions(request):
-    my_contributions = Contribution.objects.filter(user=request.user)
-    return render(request, 'dye/my_contributions.html', context={'contributions': my_contributions})
+    contributions = Contribution.objects.filter(user=request.user)
+    return render(request, 'dye/my_contributions.html', context={'contributions': contributions})
 
 
 @login_required
