@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'django.contrib.sites',
     'post_office',
+    'captcha',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -151,6 +152,9 @@ EMAIL_PORT = '25'
 EMAIL_HOST_USER = ''
 DEFAULT_FROM_MAIL = 'carl.j.v.hambro@ntnu.no'
 
+ADMINS = [('Carl Johan Hambro', 'carljh@stud.ntnu.no'),('Carl Johan Hambro', 'carljh@stud.ntnu.no'),]
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -174,3 +178,10 @@ LOGGING = {
         },
     },
 }
+
+
+RECAPTCHA_PUBLIC_KEY = '6LcirRIUAAAAALA1LjUlHQ7Q8Bl4z2qsnCipqN-r'
+RECAPTCHA_PRIVATE_KEY = '6LcirRIUAAAAAAhfT2QqAeqOi6ImXLzYpVdTD586'
+NOCAPTCHA = True
+CAPTCHA_AJAX = True
+CAPTCHA_WIDGET_TEMPLATE = 'captcha/widget_nocaptcha.html'

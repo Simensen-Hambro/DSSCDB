@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls, ),
     url(r'^user/', include('usermanagement.urls', namespace='user')),
     url(r'^hub/', include('dye.urls', namespace='dye')),
+    url(r'^contact/$', views.contact_us, name='contact'),
 ]
 
 if settings.DEBUG:
