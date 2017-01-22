@@ -1,6 +1,6 @@
 {% extends 'DSSCDB/base.html' %}
+{% load static %}
 {% load bootstrap3 %}
-
 
 {% block content %}
   {% if errors %}
@@ -47,11 +47,20 @@
             <h3 class="panel-title">Batch upload spreadsheet data </h3>
           </div>
           <div class="panel-body panel-content">
-            <form action="{% url 'dye:file-upload' %}" method="post" class="form" enctype="multipart/form-data">
+            <form action="{% url 'dye:file-upload' %}" method="post" class="form file-upload-form"
+                  enctype="multipart/form-data">
               {% csrf_token %}
               {% bootstrap_form file_form %}
               {% buttons %}
                 <button type="submit" class="btn btn-primary submit-button">Upload</button>
+                <div class="loader">
+                  <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"/>
+                  </svg>
+                </div>
+                <div class="loader-text">
+                  <p>The upload may take a while</p>
+                </div>
               {% endbuttons %}
             </form>
           </div>
@@ -62,3 +71,6 @@
 
 {% endblock content %}
 
+{% block footer-scripts %}
+  <script type="text/javascript" src="{% static 'dye/javascript/dye.js' %}"></script>
+{% endblock footer-scripts %}
