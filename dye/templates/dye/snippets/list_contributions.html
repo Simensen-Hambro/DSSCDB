@@ -20,10 +20,3 @@
 {% empty %}
   There are no contributions here yet. <a href="{% url "dye:single-upload" %}"></a>
 {% endfor %}
-<script>
-  $(document).ready(function($) {
-    $(".clickable-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>

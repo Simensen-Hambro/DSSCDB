@@ -7,71 +7,65 @@
     <th>JSC</th>
     <th>FF</th>
     <th>PCE</th>
-    <th>Details</th>
   </tr>
   </thead>
   <tbody>
   {% for performance in performances %}
-    <tr>
+    <tr data-href="{{ performance.get_absolute_url }}">
       <td class="image-column">
         <img src="/media/{{ performance.molecule.image }}"
              alt="Responsive image" class="materialboxed img-thumbnail molecule-thumbnail">
       </td>
-      <td class="vertical-align">{{ performance.voc }}</td>
-      <td class="vertical-align">{{ performance.jsc }}</td>
-      <td class="vertical-align">{{ performance.ff }}</td>
-      <td class="vertical-align">{{ performance.pce }}</td>
-      <td class="vertical-align info-image-column"><a
-              href="{{ performance.get_absolute_url }}"><img
-              src="{% static 'DSSCDB/images/info.svg' %}" class="info-image"></a></td>
-    </tr>
+      <td class="vertical-align clickable-cell">{{ performance.voc }}</td>
+      <td class="vertical-align clickable-cell">{{ performance.jsc }}</td>
+      <td class="vertical-align clickable-cell">{{ performance.ff }}</td>
+      <td class="vertical-align clickable-cell">{{ performance.pce }}</td>
   {% endfor %}
   </tbody>
 </table>
-{% if pages %}
-  <nav aria-label="Page navigation">
-    <ul class="pagination">
-      <li>
-        {% if performances.has_previous %}
-          <a href="?page={{ performances.previous_page_number }}" aria-label="Previous" class="pagination-button">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        {% else %}
-          <a href="?page={{ performances.number }}" aria-label="Previous" class="pagination-button">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        {% endif %}
-      </li>
-      {% for page in pages %}
-        {% if forloop.first and page > 1 %}
-          <li>
-            <a href="?page={{ page }}" class="pagination-button">...</a>
-          </li>
-        {% elif forloop.last and page < num_pages %}
-          <li>
-            <a href="?page={{ page }}" class="pagination-button">...</a>
-          </li>
-        {% else %}
-          <li {% if page == performances.number %}class="active"{% endif %}>
-            <a href="?page={{ page }}" class="pagination-button">{{ page }}</a>
-          </li>
-        {% endif %}
+<nav aria-label="Page navigation">
 
-      {% endfor %}
-      <li>
-        {% if performances.has_next %}
-          <a href="?page={{ performances.next_page_number }}" aria-label="Next" class="pagination-button">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        {% else %}
-          <a href="?page={{ performances.number }}" aria-label="Next" class="pagination-button">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        {% endif %}
-      </li>
-    </ul>
-  </nav>
-{% endif %}
+  <ul class="pagination">
+    <li>
+      {% if performances.has_previous %}
+        <a href="?page={{ performances.previous_page_number }}" aria-label="Previous" class="pagination-button">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      {% else %}
+        <a href="?page={{ performances.number }}" aria-label="Previous" class="pagination-button">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      {% endif %}
+    </li>
+    {% for page in pages %}
+      {% if forloop.first and page > 1 %}
+        <li>
+          <a href="?page={{ page }}" class="pagination-button">...</a>
+        </li>
+      {% elif forloop.last and page < num_pages %}
+        <li>
+          <a href="?page={{ page }}" class="pagination-button">...</a>
+        </li>
+      {% else %}
+        <li {% if page == performances.number %}class="active"{% endif %}>
+          <a href="?page={{ page }}" class="pagination-button">{{ page }}</a>
+        </li>
+      {% endif %}
+
+    {% endfor %}
+    <li>
+      {% if performances.has_next %}
+        <a href="?page={{ performances.next_page_number }}" aria-label="Next" class="pagination-button">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      {% else %}
+        <a href="?page={{ performances.number }}" aria-label="Next" class="pagination-button">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      {% endif %}
+    </li>
+  </ul>
+</nav>
 <script>
   $(function () {
     $('.materialboxed').materialbox();
