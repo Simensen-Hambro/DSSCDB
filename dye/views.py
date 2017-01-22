@@ -1,5 +1,4 @@
-from itertools import chain
-
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import FieldError
@@ -7,10 +6,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.forms import modelformset_factory
-from django.shortcuts import redirect
-from django.shortcuts import reverse, render, Http404
+from django.shortcuts import reverse, render, redirect, Http404
 
-from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm
+from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm, \
+    PerformanceRangeSearchForm
 from .helpers import get_or_create_article, locate_start_data, to_decimal
 from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
@@ -168,26 +167,6 @@ def file_upload(request):
 
 
 @login_required
-def performance_list(request):
-    context = get_performances(request, {})
-    return render(request, 'dye/performance_list.html', context)
-
-
-@login_required
-def performance_details(request, short_id):
-    try:
-        performance = Performance.objects.get(short_id=short_id)
-    except Performance.DoesNotExist:
-        raise Http404
-
-    context = {
-        'performance': performance
-    }
-
-    return render(request, 'dye/performance_detail.html', context)
-
-
-@login_required
 def contributions_evaluation_overview(request):
     to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
     ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
@@ -232,19 +211,70 @@ def my_contributions(request):
     return render(request, 'dye/my_contributions.html', context={'contributions': my_contributions})
 
 
-def range_search_performance(request):
-    pass
+@login_required
+def performance_list(request):
+    context = paginate_performances(request, get_performances(), {})
+    return render(request, 'dye/performance_list.html', context)
 
 
-def get_performances(request, context, **search):
+@login_required
+def performance_details(request, short_id):
+    try:
+        performance = Performance.objects.get(short_id=short_id)
+    except Performance.DoesNotExist:
+        raise Http404
+
+    context = {
+        'performance': performance
+    }
+
+    return render(request, 'dye/performance_detail.html', context)
+
+@login_required
+def performance_range_search(request):
+    context = {}
+    if request.method == 'POST':
+        form = PerformanceRangeSearchForm(request.POST)
+        if form.is_valid():
+            performances = get_performances(**form.cleaned_data)
+            context = paginate_performances(request, performances, context)
+    else:
+        form = PerformanceRangeSearchForm()
+        performances = get_performances()
+        context = paginate_performances(request, performances, context)
+
+    context['range_form'] = form
+    return render(request, 'dye/performance_list.html', context)
+
+
+def get_performances(**search):
+    performances = Performance.objects.all()
+
+    if search.get('min_voc'):
+        performances = performances.filter(voc__gte=search.get('min_voc'))
+    if search.get('max_voc'):
+        performances = performances.filter(voc__lte=search.get('max_voc'))
+    if search.get('min_jsc'):
+        performances = performances.filter(jsc__gte=search.get('min_jsc'))
+    if search.get('max_jsc'):
+        performances = performances.filter(jsc__lte=search.get('max_jsc'))
+    if search.get('min_ff'):
+        performances = performances.filter(ff__gte=search.get('min_ff'))
+    if search.get('max_ff'):
+        performances = performances.filter(ff__lte=search.get('max_ff'))
+    if search.get('min_pce'):
+        performances = performances.filter(pce__lte=search.get('min_pce'))
+    if search.get('max_pce'):
+        performances = performances.filter(pce__lte=search.get('max_pce'))
+
+    return performances
+
+
+def paginate_performances(request, performance_list, context):
     """
-    Returns the requested performances and pagination inside the context
+    For a given set of performances returns the context with pagination
     """
-
-    performance_list = Performance.objects.all()
-    for i in range(10):
-        performance_list = list(chain(performance_list, Performance.objects.all()))
-    paginator = Paginator(performance_list, 10)
+    paginator = Paginator(performance_list, settings.PAGINATION_NUMBER)
 
     page = request.GET.get('page')
     try:

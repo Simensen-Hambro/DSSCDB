@@ -66,7 +66,7 @@ class ApprovalForm(forms.ModelForm):
         ]
 
 
-class PerformanceSearchForm(forms.Form):
+class PerformanceRangeSearchForm(forms.Form):
     min_voc = forms.DecimalField(label='min VOC', decimal_places=4, max_digits=15, required=False)
     max_voc = forms.DecimalField(label='max VOC', decimal_places=4, max_digits=15, required=False)
     min_jsc = forms.DecimalField(label='min JSC', decimal_places=5, max_digits=15, required=False)

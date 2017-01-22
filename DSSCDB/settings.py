@@ -31,6 +31,7 @@ context_processors = [
 ]
 
 # Application definition
+PAGINATION_NUMBER = 5
 
 INSTALLED_APPS = [
     'django.contrib.admin',

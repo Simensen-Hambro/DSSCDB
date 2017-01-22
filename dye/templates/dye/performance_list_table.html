@@ -28,51 +28,53 @@
   {% endfor %}
   </tbody>
 </table>
-<nav aria-label="Page navigation">
+{% if pages %}
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <li>
+        {% if performances.has_previous %}
+          <a href="?page={{ performances.previous_page_number }}" aria-label="Previous" class="pagination-button">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        {% else %}
+          <a href="?page={{ performances.number }}" aria-label="Previous" class="pagination-button">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        {% endif %}
+      </li>
+      {% for page in pages %}
+        {% if forloop.first and page > 1 %}
+          <li>
+            <a href="?page={{ page }}" class="pagination-button">...</a>
+          </li>
+        {% elif forloop.last and page < num_pages %}
+          <li>
+            <a href="?page={{ page }}" class="pagination-button">...</a>
+          </li>
+        {% else %}
+          <li {% if page == performances.number %}class="active"{% endif %}>
+            <a href="?page={{ page }}" class="pagination-button">{{ page }}</a>
+          </li>
+        {% endif %}
 
-  <ul class="pagination">
-    <li>
-      {% if performances.has_previous %}
-        <a href="?page={{ performances.previous_page_number }}" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      {% else %}
-        <a href="?page={{ performances.number }}" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      {% endif %}
-    </li>
-    {% for page in pages %}
-      {% if forloop.first and page > 1 %}
-        <li>
-          <a href="?page={{ page }}">...</a>
-        </li>
-      {% elif forloop.last and page < num_pages %}
-        <li>
-          <a href="?page={{ page }}">...</a>
-        </li>
-      {% else %}
-        <li {% if page == performances.number %}class="active"{% endif %}>
-          <a href="?page={{ page }}">{{ page }}</a>
-        </li>
-      {% endif %}
-
-    {% endfor %}
-    <li>
-      {% if performances.has_next %}
-        <a href="?page={{ performances.next_page_number }}" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      {% else %}
-        <a href="?page={{ performances.number }}" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      {% endif %}
-    </li>
-  </ul>
-</nav>
+      {% endfor %}
+      <li>
+        {% if performances.has_next %}
+          <a href="?page={{ performances.next_page_number }}" aria-label="Next" class="pagination-button">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        {% else %}
+          <a href="?page={{ performances.number }}" aria-label="Next" class="pagination-button">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        {% endif %}
+      </li>
+    </ul>
+  </nav>
+{% endif %}
 <script>
   $(function () {
     $('.materialboxed').materialbox();
   });
 </script>
+<script type="text/javascript" src="{% static 'dye/javascript/dye.js' %}"></script>
