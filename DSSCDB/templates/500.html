@@ -1,0 +1,18 @@
+{% extends 'DSSCDB/base.html' %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="jumbotron">
+          <h1>Internal error</h1>
+          <p>
+            Sorry! An unexpected error has occurred. The error has been logged.<br>
+            Please <a href="{% url "contact" %}">contact us</a> for further details.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
