@@ -184,6 +184,7 @@ def contributions_evaluation_overview(request):
     context = {
         'contributions': to_evaluate,
         'formset': formset,
+        'admin': True,
     }
     return render(request, 'dye/evaluate_contributions.html', context=context)
 

@@ -9,13 +9,19 @@
     </thead>
     <tbody>
     {% for contribution in contributions %}
-    <tr class="clickable-row" data-href="{{ contribution.get_absolute_url }}">
-      <td><strong><a
-          href="{% url "user:admin-users" %}">{{ contribution.user.first_name }} {{ contribution.user.last_name }}</a></strong>
-      </td>
-      <td>{{ contribution.created|date:"j. F - H:i" }}</td>
-      <td>{% if contribution.status == 1 %}Waiting{% elif contribution.status == 3 %}Denied{% endif %}</td>
-    </tr>
+      <tr class="clickable-row" data-href="{{ contribution.get_absolute_url }}">
+        <td>
+          <strong>
+            {% if admin %}
+              <a href="{% url "user:admin-users" %}">{{ contribution.user.first_name }} {{ contribution.user.last_name }}</a>
+            {% else %}
+              <span>{{ contribution.user.first_name }} {{ contribution.user.last_name }}</span>
+            {% endif %}
+          </strong>
+        </td>
+        <td>{{ contribution.created|date:"j. F - H:i" }}</td>
+        <td>{% if contribution.status == 1 %}Waiting{% elif contribution.status == 3 %}Denied{% endif %}</td>
+      </tr>
     {% endfor %}
     </tbody>
   </table>

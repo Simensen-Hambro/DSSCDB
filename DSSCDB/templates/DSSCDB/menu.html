@@ -49,6 +49,7 @@
               {% if request.user.is_staff %}
                 <li class="dropdown-header">Admin</li>
                 <li><a href="{% url 'user:admin-users' %}">Users</a></li>
+                <li><a href="{% url 'dye:evaluate-contributions' %}">All contributions</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">Profile</li>
               {% endif %}
