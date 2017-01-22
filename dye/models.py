@@ -1,10 +1,12 @@
-from django.db import models
-from sorl.thumbnail import ImageField
-from django.contrib.auth.models import User
-from extended_choices import Choices
 import uuid
-from validators import validate_inchi, validate_smiles
+
+from django.contrib.auth.models import User
+from django.db import models
 from django.shortcuts import reverse
+from extended_choices import Choices
+from sorl.thumbnail import ImageField
+
+from .validators import validate_inchi, validate_smiles
 
 APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
@@ -13,13 +15,25 @@ APPROVAL_STATES = Choices(
 )
 
 
-def generate_short_id():
-    id = uuid.uuid4().hex[:8]
+def get_unique_id():
+    key = uuid.uuid4().hex[:8]
     try:
-        Performance.objects.get(short_id=id)
-        return Performance.generate_short_id()
-    except Performance.DoesNotExist:
-        return id
+        ShortID.objects.get(key=key)
+        return ShortID.generate_id()
+    except ShortID.DoesNotExist:
+        return key
+
+
+class ShortID(models.Model):
+    key = models.CharField(max_length=8, unique=True, default=get_unique_id, editable=False)
+
+    @staticmethod
+    def generate_id():
+        short_id = ShortID.objects.create()
+        return short_id.key
+
+    def __str__(self):
+        return self.key
 
 
 class Spreadsheet(models.Model):
@@ -29,9 +43,8 @@ class Spreadsheet(models.Model):
 
 
 class Molecule(models.Model):
-    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.",
-                              validators=[validate_smiles])
-    inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True, validators=[validate_inchi])
+    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.")
+    inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -98,7 +111,7 @@ class Performance(models.Model):
     solar_simulator = models.CharField(max_length=1000)
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
-    short_id = models.CharField(max_length=8, unique=True, default=generate_short_id)
+    short_id = models.CharField(max_length=8, unique=True, default=ShortID.generate_id, editable=False)
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -140,6 +153,7 @@ class Contribution(models.Model):
     specta = models.ManyToManyField(Spectrum, null=True, blank=True)
     molecules = models.ManyToManyField(Molecule)
 
+    short_id = models.CharField(max_length=8, unique=True, default=ShortID.generate_id, editable=False)
     created = models.DateTimeField(auto_now_add=True)
     status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
@@ -171,4 +185,4 @@ class Contribution(models.Model):
             self.set_approval_state(self.status)
 
     def get_absolute_url(self):
-        return reverse("dye:single-evaluation", kwargs={'contribution': self.pk})
+        return reverse("dye:single-evaluation", kwargs={'short_id': self.short_id})

@@ -189,8 +189,8 @@ def contributions_evaluation_overview(request):
 
 
 @login_required
-def single_contribution_evaluation(request, contribution):
-    contribution = Contribution.objects.get(pk=contribution)
+def single_contribution_evaluation(request, short_id):
+    contribution = Contribution.objects.get(short_id=short_id)
     performances = contribution.performances.all()
 
     approval_form = ApprovalForm(request.POST or None, instance=contribution)
@@ -264,7 +264,11 @@ def performance_keyword_search(request):
     return render(request, 'dye/performance_list.html', context)
 
 def get_performances(**search):
-    performances = Performance.objects.all()
+
+    if search.get('status'):
+        performances = Performance.objects.filter(status=search.get('status'))
+    else:
+        performances = Performance.objects.filter(status=APPROVAL_STATES.APPROVED)
 
     # Search after keyword
     if search.get('keyword'):
