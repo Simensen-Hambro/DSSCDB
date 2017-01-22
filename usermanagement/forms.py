@@ -69,7 +69,7 @@ class SignUpForm(forms.Form):
             self.add_error('password',
                            'Password must be at least 8 characters, contain at least one number and at least one capital letter')
 
-    def create_user(self):
+    def create_user(self, ip):
         first_name = self.cleaned_data.get('first_name')
         last_name = self.cleaned_data.get('last_name')
         email = self.cleaned_data.get('email')
@@ -86,7 +86,8 @@ class SignUpForm(forms.Form):
 
         Profile.objects.create(user=user,
                                organization=organization,
-                               affiliation=affiliation)
+                               affiliation=affiliation,
+                               ip=ip)
 
 
 class ForgotPasswordForm(forms.Form):

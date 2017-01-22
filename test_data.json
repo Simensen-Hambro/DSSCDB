@@ -94,7 +94,8 @@
     "fields": {
       "user": 1,
       "organization": "NTNU",
-      "affiliation": "Hei"
+      "affiliation": "Hei",
+      "ip":"127.0.0.1"
     }
   },
   {

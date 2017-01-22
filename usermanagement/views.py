@@ -6,7 +6,7 @@ from django.contrib import messages
 from usermanagement.models import *
 from post_office import mail
 from django.conf import settings
-
+from .helpers import get_ip_address_from_request
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -43,7 +43,8 @@ def signup_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.create_user()
+            ip = get_ip_address_from_request(request)
+            form.create_user(ip)
             user = User.objects.get(email=form.cleaned_data.get('email'))
             token = UserToken.objects.create(user=user)
             mail.send(recipients=[user.email],

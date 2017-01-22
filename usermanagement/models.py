@@ -16,6 +16,8 @@ class Profile(models.Model):
     organization = models.CharField(max_length=100)
     affiliation = models.CharField(max_length=250)
 
+    ip = models.GenericIPAddressField()
+
     def __str__(self):
         return '{} {}'.format(self.user.first_name, self.user.last_name)
 
