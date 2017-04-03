@@ -1,0 +1,38 @@
+version: '2'
+services:
+  database:
+    restart: always
+    image: postgres:latest
+    env_file: env
+    volumes:
+      - ./logs/db:/var/log/postgresql
+      - dbdata:/var/lib/postgresql/data
+
+  website:
+    restart: always
+    build: ./src
+    volumes:
+      - media:/code/media
+      - static:/code/static
+    depends_on:
+      - database
+    env_file: env
+    expose:
+      - "8000"
+    entrypoint: /code/entrypoint.sh
+
+  proxy:
+    build: ./nginx
+    ports:
+      - "12230:80"
+    volumes:
+      - static:/code/static
+      - media:/code/media
+      - /etc/localtime:/etc/localtime:ro
+    links:
+      - website:website
+
+volumes:
+  dbdata:
+  media:
+  static:

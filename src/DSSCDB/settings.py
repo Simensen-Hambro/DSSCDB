@@ -40,16 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'DSSCDB',
-    'dye',
-    'usermanagement',
-    'sorl.thumbnail',  # Image thumbnails and caching
-    'extended_choices',  # Better enumeration support for choices
-    'bootstrap3',
-    'django.contrib.flatpages',
-    'django.contrib.sites',
-    'post_office',
-    'captcha',
+    'DSSCDB',                       # Main project app
+    'dye',                          # App for chemistry data
+    'usermanagement',               # Custom app for user management
+    'sorl.thumbnail',               # Image thumbnails and caching
+    'extended_choices',             # Better enumeration support for choices
+    'bootstrap3',                   # Neat forms
+    'django.contrib.flatpages',     # Semi-dynamic pages such as "About"
+    'django.contrib.sites',         # Easy domain management
+    'post_office',                  # Mail plugin
+    'captcha',                      # Re-captcha for "I'm not a robot" validation
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -129,7 +129,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    '/var/www/static/',
+    #os.path.join(BASE_DIR, 'DSSCDB/'),
 ]
 
 LOGIN_URL = '/user/login/'
