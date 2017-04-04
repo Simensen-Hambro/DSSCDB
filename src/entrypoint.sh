@@ -8,5 +8,5 @@ then
   python manage.py collectstatic --noinput
 fi
 
-exec uwsgi --chdir=./ --module=DSSCDB.wsgi:application --master --pidfile=/tmp/project-master.pid \
---http=0.0.0.0:8000 --processes=5 --max-requests=5000 --vacuum
+source activate rdkitenv
+gunicorn DSSCDB.wsgi:application --log-file "-" --access-logfile "-" --log-level INFO -w 2 -b :8000
