@@ -79,3 +79,7 @@ class PerformanceRangeSearchForm(forms.Form):
 
 class PerformanceKeywordSearchForm(forms.Form):
     keyword = forms.CharField(max_length=1000, required=False)
+
+
+class PerformanceStructureSearchForm(forms.Form):
+    smiles = forms.CharField(max_length=1000, required=False)

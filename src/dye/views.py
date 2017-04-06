@@ -8,8 +8,7 @@ from django.db import transaction
 from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
 
-from .forms import ArticleForm, MoleculeForm, SpectrumForm, PerformanceForm, SpreadsheetForm, ApprovalForm, \
-    PerformanceRangeSearchForm, PerformanceKeywordSearchForm
+from .forms import *
 from .helpers import get_or_create_article, locate_start_data, to_decimal
 from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
@@ -35,8 +34,9 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 molecule = molecule_form.save()
 
             try:
+                # TODO: Remove one to one constraint on spectrum.
                 # Try to get spectrum
-                spectrum = Spectrum.objects.get(molecule=molecule, article=article)
+                spectrum = Spectrum.objects.get(molecule=molecule)
             except ObjectDoesNotExist:
                 # Does not exist
                 if not spectrum_form.is_valid():
@@ -77,6 +77,8 @@ def single_upload(request):
         if article_form.is_valid():
             data_objects = validate_raw_data(user=request.user, **forms)
             Contribution.objects.create_from_data([data_objects], user=request.user)
+
+            # If FieldError in validate_raw_data, the article is an article_form
             if isinstance(data_objects.get('article'), Article):
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
@@ -235,48 +237,52 @@ def performance_details(request, short_id):
 
     return render(request, 'dye/performance_detail.html', context)
 
+
 @login_required
-def performance_range_search(request):
+def performance_search(request):
     context = {}
+    context['search'] = False
     if request.method == 'POST':
-        form = PerformanceRangeSearchForm(request.POST)
-        if form.is_valid():
-            performances = get_performances(**form.cleaned_data)
+        range_form = PerformanceRangeSearchForm(request.POST)
+        keyword_form = PerformanceKeywordSearchForm(request.POST)
+        structure_form = PerformanceStructureSearchForm(request.POST)
+        if range_form.is_valid() and keyword_form.is_valid() and structure_form.is_valid():
+            performances = get_performances(**range_form.cleaned_data, **keyword_form.cleaned_data,
+                                            **structure_form.cleaned_data)
             context = paginate_performances(request, performances, context)
+            context['hits'] = performances.count()
+            context['search'] = True
     else:
-        form = PerformanceRangeSearchForm()
+        range_form = PerformanceRangeSearchForm()
+        keyword_form = PerformanceKeywordSearchForm()
+        structure_form = PerformanceStructureSearchForm()
         performances = get_performances()
         context = paginate_performances(request, performances, context)
 
-    context['range_form'] = form
+    context['range_form'] = range_form
+    context['keyword_form'] = keyword_form
+    context['structure_form'] = structure_form
+
     return render(request, 'dye/performance_list.html', context)
 
-@login_required
-def performance_keyword_search(request):
-    context = {}
-    if request.method == 'POST':
-        form = PerformanceKeywordSearchForm(request.POST)
-        if form.is_valid():
-            performances = get_performances(**form.cleaned_data)
-            context = paginate_performances(request, performances, context)
-    else:
-        form = PerformanceKeywordSearchForm()
-        performances = get_performances()
-        context = paginate_performances(request, performances, context)
-
-    context['keyword_form'] = form
-    return render(request, 'dye/performance_list.html', context)
 
 def get_performances(**search):
-
     if search.get('status'):
-        performances = Performance.objects.filter(status=search.get('status'))
+        # performances = Performance.objects.filter(status=search.get('status'))
+        pass
     else:
-        performances = Performance.objects.filter(status=APPROVAL_STATES.APPROVED)
+        pass
+        # performances = Performance.objects.filter(status=APPROVAL_STATES.APPROVED)
+
+    performances = Performance.objects.all()
 
     # Search after keyword
     if search.get('keyword'):
         performances = performances.filter(keywords__icontains=search.get('keyword'))
+
+    # Structure search
+    if search.get('smiles'):
+        performances = performances.filter(molecule__smiles__icontains=search.get('smiles'))
 
     # Search after different range criterias
     if search.get('min_voc'):

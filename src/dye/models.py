@@ -5,6 +5,7 @@ from django.db import models
 from django.shortcuts import reverse
 from extended_choices import Choices
 from sorl.thumbnail import ImageField
+from tinyuuidfield.fields import TinyUUIDField
 
 from .validators import validate_inchi, validate_smiles
 
@@ -14,7 +15,6 @@ APPROVAL_STATES = Choices(
     ('DENIED', 3, 'Denied'),
 )
 
-
 def get_unique_id():
     key = uuid.uuid4().hex[:8]
     try:
@@ -23,6 +23,13 @@ def get_unique_id():
     except ShortID.DoesNotExist:
         return key
 
+
+class Test(models.Model):
+    #name = models.CharField()
+    tiny_id = TinyUUIDField()
+
+    def __str__(self):
+        return self.tiny_id
 
 class ShortID(models.Model):
     key = models.CharField(max_length=8, unique=True, default=get_unique_id, editable=False)
@@ -79,6 +86,7 @@ class Spectrum(models.Model):
     solvent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
+    # Foreignkey, not one to one
     molecule = models.OneToOneField(Molecule, related_name='spectrum')
     article = models.ForeignKey(Article, related_name='spectra')
 

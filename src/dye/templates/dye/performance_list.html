@@ -10,49 +10,84 @@
 
 {% block head-scripts %}
   <script type="text/javascript" src="{% static 'DSSCDB/javascript/image_viewer.min.js' %}"></script>
+  <script type="text/javascript" language="javascript" src="{% static 'DSSCDB/jsme/jsme.nocache.js' %}"></script>
+  <script type="text/javascript" language="javascript" src="{% static 'dye/javascript/jsme-plugin.js' %}"></script>
 {% endblock head-scripts %}
 {% block content %}
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="panel panel-default full-page-panel">
-          <div class="panel-heading">
-            <h3 class="panel-title">Performance data</h3>
-          </div>
-          <div class="panel-body panel-content">
-            {% if range_form %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default full-page-panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">Performance data</h3>
+        </div>
+        <div class="panel-body panel-content">
+          <div class="panel panel-default">
+
+            <div class="panel-heading" role="tab" id="headingOne">
+              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                 aria-expanded="true" aria-controls="collapseOne" id="search-filter-link">
+                <h3 class="panel-title">
+                  <img class="menu-icon" src="{% static "DSSCDB/images/ic_search_white_24px.svg" %}">Search filter
+                </h3>
+              </a>
+            </div>
+            {% if search %}
+              <div class="collapse" id="collapseOne">
+            {% else %}
+              <div class="collapse in" id="collapseOne">
+            {% endif %}
+            <div class="panel-body">
               <form action="" method="post" class="form" id="search-form">
                 {% csrf_token %}
-                <div class="row">
-                  <div class="col-md-6"> {% bootstrap_field range_form.min_voc %} </div>
-                  <div class="col-md-6"> {% bootstrap_field range_form.max_voc %} </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6"> {% bootstrap_field range_form.min_jsc %} </div>
-                  <div class="col-md-6"> {% bootstrap_field range_form.max_jsc %} </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6"> {% bootstrap_field range_form.min_ff %} </div>
-                  <div class="col-md-6"> {% bootstrap_field range_form.max_ff %} </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6"> {% bootstrap_field range_form.min_pce %} </div>
-                  <div class="col-md-6"> {% bootstrap_field range_form.max_pce %} </div>
+                {% if keyword_form %}
+                  {% bootstrap_form keyword_form %}
+                {% endif %}
+                {% if range_form %}
+                  <div class="row">
+                    <div class="col-md-6"> {% bootstrap_field range_form.min_voc %} </div>
+                    <div class="col-md-6"> {% bootstrap_field range_form.max_voc %} </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6"> {% bootstrap_field range_form.min_jsc %} </div>
+                    <div class="col-md-6"> {% bootstrap_field range_form.max_jsc %} </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6"> {% bootstrap_field range_form.min_ff %} </div>
+                    <div class="col-md-6"> {% bootstrap_field range_form.max_ff %} </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6"> {% bootstrap_field range_form.min_pce %} </div>
+                    <div class="col-md-6"> {% bootstrap_field range_form.max_pce %} </div>
+                  </div>
+                {% endif %}
+                {% if structure_form %}
+                  {% bootstrap_field structure_form.smiles field_class="hidden" label_class="hidden" %}
+                {% endif %}
+                <div>
+                  <div id="jsme_container">
+
+                    <div id="hideFrame"
+                         style="opacity: 0.3; background: #000; height: 500px; z-index: 100; position: absolute; display: table;">
+                      <p style="color: #fff; opacity: 0.5; z-index: 101; font-size:72px; text-align: center; display: table-cell; vertical-align: middle">
+                        <strong>Click
+                          to draw</strong>
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 {% buttons %}
-                  <button type="submit" class="btn btn-primary submit-button">Search</button>
+                  <button class="btn btn-primary submit-button">Search</button>
                 {% endbuttons %}
               </form>
-            {% endif %}
-            {% if keyword_form %}
-              <form action="" method="post" class="form" id="search-form">
-                {% csrf_token %}
-                {% bootstrap_form keyword_form %}
-                {% buttons %}
-                  <button type="submit" class="btn btn-primary submit-button">Search</button>
-                {% endbuttons %}
-              </form>
-            {% endif %}
+
+            </div>
+            </div>
+            </div>
+
+            {% if hits %}
+              <p class="matches-text">{{ hits }} matches found.</p>
+          {% endif %}
             {% if performances %}
               {% include 'dye/performance_list_table.html' %}
             {% else %}

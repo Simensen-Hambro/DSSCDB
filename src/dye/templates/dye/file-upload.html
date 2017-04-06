@@ -24,7 +24,7 @@
                 {% for error in errors %}
                   {% if 'already exists' not in error.message|striptags %}
                     <tr>
-                      <th>{{ error.row }}</th>
+                      <td><strong>{{ error.row }}</strong></td>
                       <td>{{ error.key }}</td>
                       <td>{{ error.message|striptags }}</td>
                     </tr>

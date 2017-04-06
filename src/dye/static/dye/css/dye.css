@@ -39,3 +39,35 @@ dl {
 .detail-panel {
     margin-bottom: 0;
 }
+
+#search-filter-link {
+    color: white;
+}
+
+#search-filter-link:focus {
+    text-decoration: none;
+}
+
+#search-filter-link:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+
+.has-success .form-control  {
+    border: 1px solid #dce4ec;
+}
+.has-success .form-control:focus {
+    border: 2px solid var(--nav-color);
+}
+
+.has-success .control-label {
+    color: var(--nav-color);
+}
+
+.matches-text {
+    padding-left: 1rem;
+    margin: 15px 0;
+}

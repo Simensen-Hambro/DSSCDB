@@ -54,7 +54,9 @@ def to_decimal(string):
 
 
 def locate_start_data(sheet):
-    # Locate control tag start row
+    """
+    Locate control tag start row
+    """
     start_data = None
     for row_index in range(sheet.nrows):
         if "**%BEGIN%**" in sheet.row_values(row_index, 0, 1):
