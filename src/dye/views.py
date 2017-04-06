@@ -100,13 +100,19 @@ def file_upload(request):
     if request.method == 'POST':
         if file_form.is_valid():
             # Posted valid data
-            from xlrd import open_workbook
+            from xlrd import open_workbook, XLRDError
 
             upload = file_form.save(commit=False)
             upload.user = user
             upload.save()
 
-            book = open_workbook(settings.MEDIA_ROOT + '/' + str(upload.file))
+
+            try:
+                book = open_workbook(settings.MEDIA_ROOT + '/' + str(upload.file))
+            except XLRDError:
+                file_form.add_error('file', 'The file was not recognized as a valid spreadsheet file. '
+                                            'Please download the sample file and try again.')
+
             sheet = book.sheet_by_index(0)
 
             start_data = locate_start_data(sheet)
