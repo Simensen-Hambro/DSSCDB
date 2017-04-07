@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import FieldError
@@ -7,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
-
+from django.conf import settings
 from .forms import *
 from .helpers import get_or_create_article, locate_start_data, to_decimal
 from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
@@ -102,11 +101,12 @@ def file_upload(request):
         if file_form.is_valid():
             # Posted valid data
             from xlrd import open_workbook
+
             upload = file_form.save(commit=False)
             upload.user = user
             upload.save()
 
-            book = open_workbook("media/" + str(upload.file))
+            book = open_workbook(settings.MEDIA_ROOT + '/' + str(upload.file))
             sheet = book.sheet_by_index(0)
 
             start_data = locate_start_data(sheet)

@@ -15,10 +15,7 @@ from django.shortcuts import reverse
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PYTHON_2_ENV = '/Users/martsime/miniconda3/envs/test/bin/python'
-GENERATE_IMAGE_SCRIPT = BASE_DIR + '/generate_molecule_image.py'
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '@&$!ob(=ba&#-jhflz89k#ms8e^n&(snei88zr#n(_8i67t*o='
@@ -132,14 +129,17 @@ STATICFILES_DIRS = [
     #os.path.join(BASE_DIR, 'DSSCDB/'),
 ]
 
-LOGIN_URL = '/user/login/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+LOGIN_URL = '/user/login/'
+
+# Parent directory of BASE_DIR
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 MEDIA_URL = '/media/'
 THUMBNAIL_DEBUG = True
 THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_QUALITY = 100
+
 POST_OFFICE = {
     'LOG_LEVEL': 2,
     'DEFAULT_PRIORITY': 'now',
@@ -173,6 +173,11 @@ LOGGING = {
     'loggers': {
         'image': {
             'handlers': ['image_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,
         },

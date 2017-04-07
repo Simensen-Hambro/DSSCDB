@@ -12,27 +12,26 @@ services:
     restart: always
     build: ./src
     volumes:
-      - media:/code/media
-      - static:/code/static
+      - ./media:/code/media
+      - ./static:/code/static
+      - ./src:/code/src
     depends_on:
       - database
     env_file: env
     expose:
       - "8000"
-    entrypoint: /code/entrypoint.sh
+    entrypoint: /entrypoint.sh
 
   proxy:
     build: ./nginx
     ports:
       - "12230:80"
     volumes:
-      - static:/code/static
-      - media:/code/media
+      - ./static:/code/static:ro
+      - ./media:/code/media:ro
       - /etc/localtime:/etc/localtime:ro
     links:
       - website:website
 
 volumes:
   dbdata:
-  media:
-  static:

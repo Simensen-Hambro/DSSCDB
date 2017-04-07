@@ -1,6 +1,10 @@
 #!/bin/bash
 printenv > /etc/environment
+
 cd /code/
+mkdir -p media/spreadsheets
+mkdir -p media/molecules
+cd /code/src/
 sleep 7
 python manage.py migrate
 if [ "$DEBUG" == "False" ]

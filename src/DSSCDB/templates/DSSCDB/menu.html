@@ -22,17 +22,9 @@
         </li>
         <li><a href="{% url 'contact' %}"><img class="menu-icon" src="{% static "DSSCDB/images/ic_mail_outline_white_24px.svg" %}">
           Contact us </a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false">
-            <img class="menu-icon" src="{% static "DSSCDB/images/ic_list_white_24px.svg" %}">
-            Browse <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'dye:performance-keyword-search' %}">Keyword</a></li>
-            <li><a href="{% url 'dye:performance-range-search' %}">Range</a></li>
-            <li><a href="{% url 'dye:performance-range-search' %}">Structure</a></li>
-          </ul>
+        <li>
+        <a href="{% url 'dye:performance-search' %}">
+            <img class="menu-icon" src="{% static "DSSCDB/images/ic_list_white_24px.svg" %}">Browse</a>
         </li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
