@@ -13,4 +13,9 @@ then
 fi
 
 source activate rdkitenv
-gunicorn DSSCDB.wsgi:application --log-file "-" --access-logfile "-" --log-level INFO -w 2 -b :8000
+
+echo "##### STARTING UWSGI CRON AS DAEMON #####"
+uwsgi -d /dev/null --module=DSSCDB.cron_wsgi:application --master --pidfile=/tmp/project-cron.pid --http=0.0.0.0:8001 --processes=5 --harakiri=20 --max-requests=5000 --vacuum
+
+echo "##### UWSGI MAIN #####"
+uwsgi --module=DSSCDB.wsgi:application --master --pidfile=/tmp/project-master.pid --http=0.0.0.0:8000 --processes=5 --harakiri=20 --max-requests=5000 --vacuum

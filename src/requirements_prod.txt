@@ -1,2 +1,2 @@
 psycopg2==2.7.1
-gunicorn==19.7.1
+uwsgi==2.0.15
