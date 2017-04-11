@@ -1,19 +1,21 @@
 import uuid
+from itertools import chain
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.shortcuts import reverse
 from extended_choices import Choices
 from sorl.thumbnail import ImageField
 from tinyuuidfield.fields import TinyUUIDField
 
-from .validators import validate_inchi, validate_smiles
-
 APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
     ('APPROVED', 2, 'Approved'),
     ('DENIED', 3, 'Denied'),
 )
+
 
 def get_unique_id():
     key = uuid.uuid4().hex[:8]
@@ -25,11 +27,12 @@ def get_unique_id():
 
 
 class Test(models.Model):
-    #name = models.CharField()
+    # name = models.CharField()
     tiny_id = TinyUUIDField()
 
     def __str__(self):
         return self.tiny_id
+
 
 class ShortID(models.Model):
     key = models.CharField(max_length=8, unique=True, default=get_unique_id, editable=False)
@@ -43,13 +46,33 @@ class ShortID(models.Model):
         return self.key
 
 
-class Spreadsheet(models.Model):
+class AtomicContribution(models.Model):
+    """
+        A model that ties together any uploaded object type, with a Contribution object    
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+
+class Data(models.Model):
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
+    upload = GenericRelation('AtomicContribution')
+
+    class Meta:
+        abstract = True
+
+    def set_status(self, status):
+        self.status = status
+
+
+class Spreadsheet(Data):
     file = models.FileField(upload_to='spreadsheets')
     user = models.ForeignKey(User)
     created = models.DateTimeField(auto_now_add=True)
 
 
-class Molecule(models.Model):
+class Molecule(Data):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.")
     inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
@@ -61,7 +84,7 @@ class Molecule(models.Model):
         return self.inchi
 
 
-class Article(models.Model):
+class Article(Data):
     author = models.CharField(max_length=1000)
     title = models.CharField(max_length=1000)
     journal = models.CharField(max_length=250)
@@ -80,7 +103,7 @@ class Article(models.Model):
         return '{} - "{}", vol. {}, issue {}, {} '.format(self.doi, self.title, self.volume, self.issue_nr, self.year)
 
 
-class Spectrum(models.Model):
+class Spectrum(Data):
     absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10, help_text="[kg/s]")
     emission_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
     solvent = models.CharField(max_length=100)
@@ -90,21 +113,16 @@ class Spectrum(models.Model):
     molecule = models.OneToOneField(Molecule, related_name='spectrum')
     article = models.ForeignKey(Article, related_name='spectra')
 
-    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
-
     class Meta:
         unique_together = ('molecule', 'article')
         verbose_name = "Molecule spectrum"
         verbose_name_plural = "Molecule spectra"
 
-    def set_status(self, status):
-        self.status = status
-
     def __str__(self):
         return '{} - abs. max {}, emi. max {}'.format(self.molecule, self.absorption_maxima, self.emission_maxima)
 
 
-class Performance(models.Model):
+class Performance(Data):
     voc = models.DecimalField(verbose_name='VOC', decimal_places=4, max_digits=15)
     jsc = models.DecimalField(verbose_name='JSC', decimal_places=5, max_digits=15)
     ff = models.DecimalField(verbose_name='FF', decimal_places=5, max_digits=13)
@@ -125,11 +143,7 @@ class Performance(models.Model):
 
     article = models.ForeignKey(Article, related_name='performances')
     molecule = models.ForeignKey(Molecule, related_name='performances')
-
-    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
-
-    def set_status(self, status):
-        self.status = status
+    contribution = GenericRelation(AtomicContribution)
 
     def __str__(self):
         return str(self.molecule)
@@ -142,28 +156,33 @@ class Performance(models.Model):
 
 
 class ContributionManager(models.Manager):
-    def create_from_data(self, data_entry, *args, **kwargs):
-        contribution = self.create(*args, **kwargs)
-        for row in data_entry:
-            article, molecule, spectrum, performance = row.get('article'), row.get('molecule'), \
-                                                       row.get('spectrum'), row.get('performance')
-            contribution.articles.add(article)
-            contribution.molecules.add(molecule)
-            contribution.specta.add(spectrum)
-            contribution.performances.add(performance)
-        return contribution
+    def create_from_data(self, upload, *args, **kwargs):
+        """
+        Creates atomic uploads that can point to any Model: Article, spectra, molecule etc.
+        A contribution is then assigned to all these atomic uploads
+        """
+
+        new_contribution = self.create(*args, **kwargs)
+        unraveled_data_entries = list(chain.from_iterable(upload))
+        content = [(e, ContentType.objects.get_for_model(e), created) for e, created in unraveled_data_entries]
+
+        for entry_data, entry_type, created in content:
+            if created:
+                atom = AtomicContribution.objects.create(
+                    content_type=entry_type,
+                    object_id=entry_data.pk,
+                )
+                new_contribution.items.add(atom)
+        return new_contribution
 
 
-class Contribution(models.Model):
+class Contribution(Data):
     user = models.ForeignKey(User, related_name='contributions')
-    performances = models.ManyToManyField(Performance, null=True, blank=True)
-    articles = models.ManyToManyField(Article, null=True, blank=True)
-    specta = models.ManyToManyField(Spectrum, null=True, blank=True)
-    molecules = models.ManyToManyField(Molecule)
 
     short_id = models.CharField(max_length=8, unique=True, default=ShortID.generate_id, editable=False)
     created = models.DateTimeField(auto_now_add=True)
-    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
+
+    items = models.ManyToManyField(AtomicContribution, related_name='upload')
 
     objects = ContributionManager()
 
@@ -183,10 +202,12 @@ class Contribution(models.Model):
         self.set_status(APPROVAL_STATES.WAITING)
 
     def set_approval_state(self, status):
-        for obj in [self.performances.all(), self.specta.all()]:
-            for item in obj:
-                item.set_status(status)
-                item.save()
+        for item in self.items.all():
+            try:
+                item.content_object.set_status(status)
+                item.content_object.save()
+            except AttributeError:
+                pass
 
     def save(self, *args, **kwargs):
         super(Contribution, self).save(*args, **kwargs)
