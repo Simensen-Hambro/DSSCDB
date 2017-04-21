@@ -1,0 +1,18 @@
+language: python
+
+python:
+    - "3.5"
+
+sudo: false
+
+install:
+    - pip install -r src/requirements.txt
+
+before_script:
+    - python src/manage.py makemigrations
+    - python src/manage.py migrate
+script:
+    - coverage run src/manage.py test
+
+after_success:
+    - codecov
