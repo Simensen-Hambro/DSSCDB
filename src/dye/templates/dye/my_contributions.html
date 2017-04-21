@@ -1,6 +1,10 @@
 {% extends 'DSSCDB/base.html' %}
 {% load bootstrap3 %}
+{% load static %}
 
+{% block styles %}
+  <link href="{% static 'dye/css/dye.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block content %}
   <div class="container">
