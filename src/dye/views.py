@@ -22,7 +22,7 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
         Objects: list of tuples containing the object it self as well as a boolean if it was created now
     """
     try:
-        article = get_or_create_article(article_form.cleaned_data.get('doi'))
+        article, created_article = get_or_create_article(article_form.cleaned_data.get('doi'))
         if not article:
             article_form.add_error('doi', 'DOI not found')
             raise FieldError
@@ -66,7 +66,7 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 performance.save()
                 created_performance = True
 
-            return True, [(article, False), (molecule, created_molecule), (spectrum, created_spectrum),
+            return True, [(article, created_article), (molecule, created_molecule), (spectrum, created_spectrum),
                           (performance, created_performance)]
 
     except FieldError:
@@ -134,68 +134,76 @@ def file_upload(request):
 
             results, total_status = [], True
 
-            with transaction.atomic():
-                for row_index in range(start_data, sheet.nrows):
-                    row = sheet.row_values(row_index, 0, 24)
+            try:
+                with transaction.atomic():
+                    for row_index in range(start_data, sheet.nrows):
+                        row = sheet.row_values(row_index, 0, 24)
 
-                    try:
-                        # Populate article, molecule, spectrum and performance forms with the data from the user
+                        try:
+                            # Populate article, molecule, spectrum and performance forms with the data from the user
 
-                        article_form = ArticleForm({'doi': row[0]})
-                        article_form.is_valid()
-                        molecule_form = MoleculeForm(
-                            {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
-                        spectrum_form = SpectrumForm({
-                            'absorption_maxima': to_decimal(row[17]), 'emission_maxima': to_decimal(row[18]),
-                            'solvent': row[19]
-                        })
-                        performance_form = PerformanceForm({
-                            'voc': to_decimal(row[1]), 'jsc': to_decimal(row[2]), 'ff': to_decimal(row[3]),
-                            'pce': to_decimal(row[4]), 'electrolyte': row[5], 'active_area': row[6],
-                            'co_adsorbent': row[7],
-                            'co_sensitizer': row[8], 'semiconductor': row[9], 'dye_loading': row[10],
-                            'exposure_time': row[11], 'solar_simulator': row[12], 'keywords': row[13],
-                            'comment': row[14]
-                        })
+                            article_form = ArticleForm({'doi': row[0]})
+                            article_form.is_valid()
+                            molecule_form = MoleculeForm(
+                                {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
+                            spectrum_form = SpectrumForm({
+                                'absorption_maxima': to_decimal(row[17]), 'emission_maxima': to_decimal(row[18]),
+                                'solvent': row[19]
+                            })
+                            performance_form = PerformanceForm({
+                                'voc': to_decimal(row[1]), 'jsc': to_decimal(row[2]), 'ff': to_decimal(row[3]),
+                                'pce': to_decimal(row[4]), 'electrolyte': row[5], 'active_area': row[6],
+                                'co_adsorbent': row[7],
+                                'co_sensitizer': row[8], 'semiconductor': row[9], 'dye_loading': row[10],
+                                'exposure_time': row[11], 'solar_simulator': row[12], 'keywords': row[13],
+                                'comment': row[14]
+                            })
 
-                        forms = {'article_form': article_form, 'molecule_form': molecule_form,
-                                 'spectrum_form': spectrum_form,
-                                 'performance_form': performance_form}
+                            forms = {'article_form': article_form, 'molecule_form': molecule_form,
+                                     'spectrum_form': spectrum_form,
+                                     'performance_form': performance_form}
 
-                        passed, data = validate_raw_data(user=user, **forms)
-                        results.append(data)
+                            passed, data = validate_raw_data(user=user, **forms)
+                            _, _, _, r = data
+                            _, c = r
+                            if not c:
+                                print("Row {} did not yield performance".format(row_index))
+                            results.append(data)
 
-                        if passed is not True:
+                            if passed is not True:
+                                total_status = False
+
+                        except IndexError:
+                            # Failed to get some value, raise error.
                             total_status = False
+                            messages.add_message(request, messages.ERROR,
+                                                 'Critical error at row {}. '.format(row_index))
 
-                    except IndexError:
-                        # Failed to get some value, raise error.
-                        total_status = False
-                        messages.add_message(request, messages.ERROR,
-                                             'Critical error at row {}. '.format(row_index))
+                    if total_status is not True:
+                        raise IntegrityError
+            except IntegrityError:
+                pass
 
-                if total_status is not True:
-                    raise IntegrityError
+            if total_status is not True:
+                # Iterate over attribute error, for every row
+                errors = []
+                # _, objects = zip(*results)
+                for row_nr, row_data in enumerate(results):
+                    row_data, _ = zip(*row_data)
+                    for instance in row_data:
+                        if not hasattr(instance, 'pk'):
+                            for k, v in instance.errors.items():
+                                errors.append(
+                                    {'row': start_data + 1 + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
 
-            # Iterate over attribute error, for every row
-            errors = []
-            # _, objects = zip(*results)
-            for row_nr, row_data in enumerate(results):
-                row_data, _ = zip(*row_data)
-                for instance in row_data:
-                    if not hasattr(instance, 'pk'):
-                        for k, v in instance.errors.items():
-                            errors.append(
-                                {'row': start_data + 1 + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
-
-            if errors:
-                messages.add_message(request, messages.ERROR, 'Upload failed')
-                return render(request, 'dye/file-upload.html', context={'file_form': file_form, 'errors': errors})
+                if errors:
+                    messages.add_message(request, messages.ERROR, 'Upload failed')
+                    return render(request, 'dye/file-upload.html', context={'file_form': file_form, 'errors': errors})
             else:
                 Contribution.objects.create_from_data(results, user=user)
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
-            return redirect(reverse('dye:file-upload'))
+                return redirect(reverse('dye:file-upload'))
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
