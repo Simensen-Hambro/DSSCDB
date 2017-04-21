@@ -66,11 +66,13 @@ def locate_start_data(sheet):
 
 
 def get_or_create_article(article_doi):
+    created = False
     try:
         article = Article.objects.get(doi__iexact=article_doi)
         # TODO: Add try and expect if connection to DOI is not found
 
     except ObjectDoesNotExist:
         article = get_DOI_metadata(article_doi)
-    return article
+        created = True
+    return article, created
 

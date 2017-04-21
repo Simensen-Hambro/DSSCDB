@@ -1,26 +1,34 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
-from django.conf import settings
+
 from .forms import *
 from .helpers import get_or_create_article, locate_start_data, to_decimal
-from .models import Article, Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
+from .models import Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
 
-@transaction.atomic
 def validate_raw_data(article_form, molecule_form, spectrum_form, performance_form, user):
+    """
+    :param *form: Forms necessary to create a "performance" object  
+    :return: Tuple: (Passed, [(object_1, created_1), (object_2, created_2), ... ]).
+        Passed: True if there were no errors during the process, false otherwise
+        Objects: list of tuples containing the object it self as well as a boolean if it was created now
+    """
     try:
-        article = get_or_create_article(article_form.cleaned_data.get('doi'))
+        article, created_article = get_or_create_article(article_form.cleaned_data.get('doi'))
         if not article:
             article_form.add_error('doi', 'DOI not found')
             raise FieldError
         else:
             # article exists or was created
+            created_molecule, created_spectrum, created_performance = False, False, False
             try:
                 # We try to fetch the molecule
                 molecule_form.is_valid()
@@ -31,6 +39,7 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                     raise FieldError
                 molecule_form.article = article
                 molecule = molecule_form.save()
+                created_molecule = True
 
             try:
                 # TODO: Remove one to one constraint on spectrum.
@@ -43,10 +52,14 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 spectrum = spectrum_form.save(commit=False)
                 spectrum.article, spectrum.molecule = article, molecule
                 spectrum.save()
+                created_spectrum = True
             try:
                 # Try to get performance
-                # TODO: Does this "article, molecule" restriction make sense?
-                performance = Performance.objects.get(article=article, molecule=molecule)
+                performance = Performance.objects.get(article=article, molecule=molecule,
+                                                      voc=performance_form.data.get('voc'),
+                                                      jsc=performance_form.data.get('jsc'),
+                                                      ff=performance_form.data.get('ff'),
+                                                      pce=performance_form.data.get('pce'))
             except ObjectDoesNotExist:
                 if not performance_form.is_valid():
                     raise FieldError
@@ -54,13 +67,13 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 performance = performance_form.save(commit=False)
                 performance.article, performance.molecule, performance.user = article, molecule, user
                 performance.save()
+                created_performance = True
 
-            return {'article': article, 'molecule': molecule, 'spectrum': spectrum,
-                    'performance': performance}
+            return True, [(article, created_article), (molecule, created_molecule), (spectrum, created_spectrum),
+                          (performance, created_performance)]
 
     except FieldError:
-        return {'article': article_form, 'molecule': molecule_form, 'spectra': spectrum_form,
-                'performance': performance_form}
+        return False, [(article_form, False), (molecule_form, False), (spectrum_form, False), (performance_form, False)]
 
 
 @login_required
@@ -74,11 +87,11 @@ def single_upload(request):
 
     if request.method == "POST":
         if article_form.is_valid():
-            data_objects = validate_raw_data(user=request.user, **forms)
+            passed, data_objects = validate_raw_data(user=request.user, **forms)
             Contribution.objects.create_from_data([data_objects], user=request.user)
 
             # If FieldError in validate_raw_data, the article is an article_form
-            if isinstance(data_objects.get('article'), Article):
+            if passed is True:
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
                 return redirect(reverse("dye:single-upload"))
@@ -106,12 +119,13 @@ def file_upload(request):
             upload.user = user
             upload.save()
 
-
             try:
                 book = open_workbook(settings.MEDIA_ROOT + '/' + str(upload.file))
             except XLRDError:
-                file_form.add_error('file', 'The file was not recognized as a valid spreadsheet file. '
-                                            'Please download the sample file and try again.')
+                messages.add_message(request, messages.ERROR,
+                                     'The file was not recognized as a valid spreadsheet file. '
+                                     'Please download the sample file and try again.')
+                return redirect(reverse('dye:file-upload'))
 
             sheet = book.sheet_by_index(0)
 
@@ -121,55 +135,78 @@ def file_upload(request):
                                      'Could not find start-tag. Compare your sheet with the sample sheet.')
                 return redirect(reverse('dye:file-upload'))
 
-            results = []
-            for row_index in range(start_data, sheet.nrows):
-                row = sheet.row_values(row_index, 0, 24)
+            results, total_status = [], True
 
-                try:
-                    # Populate article, molecule, spectrum and performance forms with the data from the user
+            try:
+                with transaction.atomic():
+                    for row_index in range(start_data, sheet.nrows):
+                        row = sheet.row_values(row_index, 0, 24)
 
-                    article_form = ArticleForm({'doi': row[0]})
-                    article_form.is_valid()
-                    molecule_form = MoleculeForm(
-                        {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
-                    spectrum_form = SpectrumForm({
-                        'absorption_maxima': to_decimal(row[17]), 'emission_maxima': to_decimal(row[18]),
-                        'solvent': row[19]
-                    })
-                    performance_form = PerformanceForm({
-                        'voc': to_decimal(row[1]), 'jsc': to_decimal(row[2]), 'ff': to_decimal(row[3]),
-                        'pce': to_decimal(row[4]), 'electrolyte': row[5], 'active_area': row[6], 'co_adsorbent': row[7],
-                        'co_sensitizer': row[8], 'semiconductor': row[9], 'dye_loading': row[10],
-                        'exposure_time': row[11], 'solar_simulator': row[12], 'keywords': row[13], 'comment': row[14]
-                    })
+                        try:
+                            # Populate article, molecule, spectrum and performance forms with the data from the user
 
-                    forms = {'article_form': article_form, 'molecule_form': molecule_form,
-                             'spectrum_form': spectrum_form,
-                             'performance_form': performance_form}
+                            article_form = ArticleForm({'doi': row[0]})
+                            article_form.is_valid()
+                            molecule_form = MoleculeForm(
+                                {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
+                            spectrum_form = SpectrumForm({
+                                'absorption_maxima': to_decimal(row[17]), 'emission_maxima': to_decimal(row[18]),
+                                'solvent': row[19]
+                            })
+                            performance_form = PerformanceForm({
+                                'voc': to_decimal(row[1]), 'jsc': to_decimal(row[2]), 'ff': to_decimal(row[3]),
+                                'pce': to_decimal(row[4]), 'electrolyte': row[5], 'active_area': row[6],
+                                'co_adsorbent': row[7],
+                                'co_sensitizer': row[8], 'semiconductor': row[9], 'dye_loading': row[10],
+                                'exposure_time': row[11], 'solar_simulator': row[12], 'keywords': row[13],
+                                'comment': row[14]
+                            })
 
-                    results.append(validate_raw_data(user=user, **forms))
+                            forms = {'article_form': article_form, 'molecule_form': molecule_form,
+                                     'spectrum_form': spectrum_form,
+                                     'performance_form': performance_form}
 
-                except IndexError:
-                    # Failed to get some value, raise error.
-                    messages.add_message(request, messages.ERROR,
-                                         'Critical error at row {}. '.format(row_index))
-            # Iterate over attribute error, for every row
-            errors = []
-            for row_nr, row_data in enumerate(results):
-                for instance in row_data.values():
-                    if not hasattr(instance, 'pk'):
-                        for k, v in instance.errors.items():
-                            errors.append(
-                                {'row': start_data + 1 + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
+                            passed, data = validate_raw_data(user=user, **forms)
+                            _, _, _, r = data
+                            _, c = r
+                            if not c:
+                                print("Row {} did not yield performance".format(row_index))
+                            results.append(data)
 
-            if errors:
-                messages.add_message(request, messages.ERROR, 'Upload failed')
-                return render(request, 'dye/file-upload.html', context={'file_form': file_form, 'errors': errors})
+                            if passed is not True:
+                                total_status = False
+
+                        except IndexError:
+                            # Failed to get some value, raise error.
+                            total_status = False
+                            messages.add_message(request, messages.ERROR,
+                                                 'Critical error at row {}. '.format(row_index))
+
+                    if total_status is not True:
+                        raise IntegrityError
+            except IntegrityError:
+                pass
+
+            if total_status is not True:
+                # Iterate over attribute error, for every row
+                errors = []
+                # _, objects = zip(*results)
+                for row_nr, row_data in enumerate(results):
+                    row_data, _ = zip(*row_data)
+                    for instance in row_data:
+                        if not hasattr(instance, 'pk'):
+                            for k, v in instance.errors.items():
+                                errors.append(
+                                    {'row': start_data + 1 + row_nr, 'key': k.replace('_', ' ').title(), 'message': v})
+
+                if errors:
+                    messages.add_message(request, messages.ERROR, 'Upload failed')
+                    return render(request, 'dye/file-upload.html', context={'file_form': file_form, 'errors': errors})
             else:
                 Contribution.objects.create_from_data(results, user=user)
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
-            return redirect(reverse('dye:file-upload'))
+                return redirect(reverse('dye:file-upload'))
 
     return render(request, 'dye/file-upload.html', context={'file_form': file_form})
 
@@ -177,7 +214,7 @@ def file_upload(request):
 @login_required
 def contributions_evaluation_overview(request):
     to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
-    ApprovalFormSet = modelformset_factory(Contribution, fields=('status', 'molecules'))
+    ApprovalFormSet = modelformset_factory(Contribution, fields=('status',))
 
     if request.method == 'POST':
         formset = ApprovalFormSet(request.POST)
@@ -200,7 +237,8 @@ def contributions_evaluation_overview(request):
 @login_required
 def contribution_performances(request, short_id):
     contribution = Contribution.objects.get(short_id=short_id)
-    performances = contribution.performances.all()
+    atomic_contrib_performances = contribution.items.filter(content_type=ContentType.objects.get_for_model(Performance))
+    performances = Performance.objects.filter(contribution__in=atomic_contrib_performances)
     approval_form = None
 
     if request.user.has_perm('dye.contribution.set_contribution_status'):
@@ -280,7 +318,7 @@ def get_performances(**search):
         pass
         # performances = Performance.objects.filter(status=APPROVAL_STATES.APPROVED)
 
-    performances = Performance.objects.all()
+    performances = Performance.objects.filter(status=APPROVAL_STATES.APPROVED)
 
     # Search after keyword
     if search.get('keyword'):
