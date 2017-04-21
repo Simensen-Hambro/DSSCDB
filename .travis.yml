@@ -15,7 +15,7 @@ before_install:
    - conda info -a
 
    # create and activate the build/test environment
-   - conda create -q -n tenv python=python3.5
+   - conda create -q -n tenv python=3.5
    - source activate tenv
 
 install:
