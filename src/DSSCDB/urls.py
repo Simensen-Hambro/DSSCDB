@@ -19,5 +19,5 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [
-    url(r'^/s', include('django.contrib.flatpages.urls', namespace='flatpages')),
+    url(r'^s', include('django.contrib.flatpages.urls', namespace='flatpages')),
 ]

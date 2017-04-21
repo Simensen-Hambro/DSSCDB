@@ -55,8 +55,11 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 created_spectrum = True
             try:
                 # Try to get performance
-                # TODO: Does this "article, molecule" restriction make sense?
-                performance = Performance.objects.get(article=article, molecule=molecule)
+                performance = Performance.objects.get(article=article, molecule=molecule,
+                                                      voc=performance_form.data.get('voc'),
+                                                      jsc=performance_form.data.get('jsc'),
+                                                      ff=performance_form.data.get('ff'),
+                                                      pce=performance_form.data.get('pce'))
             except ObjectDoesNotExist:
                 if not performance_form.is_valid():
                     raise FieldError
