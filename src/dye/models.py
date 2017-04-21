@@ -16,36 +16,6 @@ APPROVAL_STATES = Choices(
     ('DENIED', 3, 'Denied'),
 )
 
-
-def get_unique_id():
-    key = uuid.uuid4().hex[:8]
-    try:
-        ShortID.objects.get(key=key)
-        return ShortID.generate_id()
-    except ShortID.DoesNotExist:
-        return key
-
-
-class Test(models.Model):
-    # name = models.CharField()
-    tiny_id = TinyUUIDField()
-
-    def __str__(self):
-        return self.tiny_id
-
-
-class ShortID(models.Model):
-    key = models.CharField(max_length=8, unique=True, default=get_unique_id, editable=False)
-
-    @staticmethod
-    def generate_id():
-        short_id = ShortID.objects.create()
-        return short_id.key
-
-    def __str__(self):
-        return self.key
-
-
 class AtomicContribution(models.Model):
     """
         A model that ties together any uploaded object type, with a Contribution object    
@@ -137,7 +107,7 @@ class Performance(Data):
     solar_simulator = models.CharField(max_length=1000)
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
-    short_id = models.CharField(max_length=8, unique=True, default=ShortID.generate_id, editable=False)
+    short_id = TinyUUIDField(length=10)
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -179,7 +149,7 @@ class ContributionManager(models.Manager):
 class Contribution(Data):
     user = models.ForeignKey(User, related_name='contributions')
 
-    short_id = models.CharField(max_length=8, unique=True, default=ShortID.generate_id, editable=False)
+    short_id = TinyUUIDField(length=10)
     created = models.DateTimeField(auto_now_add=True)
 
     items = models.ManyToManyField(AtomicContribution, related_name='upload')

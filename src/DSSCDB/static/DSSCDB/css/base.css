@@ -35,6 +35,10 @@ html, body {
     margin-bottom: 20px;
 }
 
+nav.navbar {
+    border-radius: 0;
+}
+
 form .alert {
     display: none;
 }
