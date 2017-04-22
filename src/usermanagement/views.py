@@ -7,6 +7,7 @@ from usermanagement.models import *
 from post_office import mail
 from django.conf import settings
 from .helpers import get_ip_address_from_request
+from dye.models import Performance, APPROVAL_STATES
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -153,9 +154,12 @@ def profile(request):
     if not request.user.is_authenticated:
         raise Http404
 
+
     context = {
         'user_profile': request.user.profile,
     }
+
+
     return render(request, 'usermanagement/profile.html', context)
 
 

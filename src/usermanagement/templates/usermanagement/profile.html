@@ -15,26 +15,12 @@
             <h3 class="panel-title">My profile</h3>
           </div>
           <div class="panel-body panel-content">
-            <div class="row">
-              <div class="col-xs-12 col-sm-8">
-                <table class="table table-striped">
-                  <tbody>
-                  <tr>
-                    <td><strong>Name:</strong></td>
-                    <td>{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Email:</strong></td>
-                    <td>{{ user_profile.user.email }}</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Organization:</strong></td>
-                    <td>{{ user_profile.organization }}</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <dl class="profile-details">
+              <dd><strong>Name: </strong>{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}</dd>
+              <dd><strong>Email: </strong>{{ user_profile.user.email }}</dd>
+              <dd><strong>Organization: </strong>{{ user_profile.organization }}</dd>
+              <dd><strong>Affiliation: </strong>{{ user_profile.affiliation }}</dd>
+            </dl>
           </div>
         </div>
       </div>

@@ -213,7 +213,7 @@ def file_upload(request):
 
 @login_required
 def contributions_evaluation_overview(request):
-    to_evaluate = Contribution.objects.filter(status__in=[APPROVAL_STATES.DENIED, APPROVAL_STATES.WAITING])
+    to_evaluate = Contribution.objects.all().order_by('-created')
     ApprovalFormSet = modelformset_factory(Contribution, fields=('status',))
 
     if request.method == 'POST':
@@ -258,7 +258,7 @@ def contribution_performances(request, short_id):
 
 @login_required
 def my_contributions(request):
-    contributions = Contribution.objects.filter(user=request.user)
+    contributions = Contribution.objects.filter(user=request.user).order_by('-created')
     return render(request, 'dye/my_contributions.html', context={'contributions': contributions})
 
 

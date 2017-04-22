@@ -151,6 +151,7 @@ class Contribution(Data):
 
     short_id = TinyUUIDField(length=10)
     created = models.DateTimeField(auto_now_add=True)
+    status = models.PositiveSmallIntegerField(choices=APPROVAL_STATES, default=APPROVAL_STATES.WAITING)
 
     items = models.ManyToManyField(AtomicContribution, related_name='upload')
 
@@ -178,6 +179,7 @@ class Contribution(Data):
                 item.content_object.save()
             except AttributeError:
                 pass
+        self.status = status
 
     def save(self, *args, **kwargs):
         super(Contribution, self).save(*args, **kwargs)

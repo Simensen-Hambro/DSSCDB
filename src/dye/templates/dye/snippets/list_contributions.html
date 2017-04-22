@@ -20,7 +20,7 @@
           </strong>
         </td>
         <td>{{ contribution.created|date:"j. F - H:i" }}</td>
-        <td>{% if contribution.status == 1 %}Waiting{% elif contribution.status == 3 %}Denied{% endif %}</td>
+        <td>{{ contribution.get_status_display }}</td>
       </tr>
     {% endfor %}
     </tbody>
