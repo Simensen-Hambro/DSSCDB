@@ -9,6 +9,7 @@ from django.shortcuts import reverse
 from extended_choices import Choices
 from sorl.thumbnail import ImageField
 from tinyuuidfield.fields import TinyUUIDField
+from .validators import validate_smiles, validate_inchi
 
 APPROVAL_STATES = Choices(
     ('WAITING', 1, 'Waiting'),
@@ -43,7 +44,8 @@ class Spreadsheet(Data):
 
 
 class Molecule(Data):
-    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True, help_text="Example field help text.")
+    smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True,
+                              help_text="Example field help text.", validators=[validate_smiles])
     inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)

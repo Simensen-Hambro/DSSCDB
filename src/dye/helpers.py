@@ -40,7 +40,7 @@ def to_decimal(string):
     if not isinstance(string, float):
         illegal_characters = re.search('([^0-9^.^,^-])', string)
         if illegal_characters:
-            return illegal_characters
+            return illegal_characters.group(0)
         else:
             rep = re.compile('(\-?\d*\.?\d+)')
 

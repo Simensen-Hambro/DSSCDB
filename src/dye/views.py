@@ -54,6 +54,8 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 spectrum.save()
                 created_spectrum = True
             try:
+                if not performance_form.is_valid():
+                    raise FieldError
                 # Try to get performance
                 performance = Performance.objects.get(article=article, molecule=molecule,
                                                       voc=performance_form.data.get('voc'),
@@ -61,13 +63,11 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                                                       ff=performance_form.data.get('ff'),
                                                       pce=performance_form.data.get('pce'))
             except ObjectDoesNotExist:
-                if not performance_form.is_valid():
-                    raise FieldError
-
                 performance = performance_form.save(commit=False)
-                performance.article, performance.molecule, performance.user = article, molecule, user
-                performance.save()
-                created_performance = True
+
+            performance.article, performance.molecule, performance.user = article, molecule, user
+            performance.save()
+            created_performance = True
 
             return True, [(article, created_article), (molecule, created_molecule), (spectrum, created_spectrum),
                           (performance, created_performance)]
@@ -88,10 +88,9 @@ def single_upload(request):
     if request.method == "POST":
         if article_form.is_valid():
             passed, data_objects = validate_raw_data(user=request.user, **forms)
-            Contribution.objects.create_from_data([data_objects], user=request.user)
 
-            # If FieldError in validate_raw_data, the article is an article_form
             if passed is True:
+                Contribution.objects.create_from_data([data_objects], user=request.user)
                 messages.add_message(request, messages.SUCCESS,
                                      'The data was uploaded and is awaiting review. Thank you!')
                 return redirect(reverse("dye:single-upload"))
