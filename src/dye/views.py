@@ -325,7 +325,8 @@ def get_performances(**search):
 
     # Structure search
     if search.get('smiles'):
-        performances = performances.filter(molecule__smiles__icontains=search.get('smiles'))
+        matching_molecules = Molecule.objects.search_substructure(search.get('smiles'))
+        performances = performances.filter(molecule__in=matching_molecules)
 
     # Search after different range criterias
     if search.get('min_voc'):

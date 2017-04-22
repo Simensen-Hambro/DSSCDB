@@ -1,6 +1,6 @@
 import uuid
 from itertools import chain
-
+from rdkit import Chem
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +43,19 @@ class Spreadsheet(Data):
     created = models.DateTimeField(auto_now_add=True)
 
 
+class MoleculeManager(models.Manager):
+    def search_substructure(self,query_smiles):
+        pattern = Chem.MolFromSmiles(query_smiles)
+        all_molecules_smiles = self.all().values_list('smiles', flat=True)
+
+        result = []
+        for m in all_molecules_smiles:
+            if Chem.MolFromSmiles(m).HasSubstructMatch(pattern):
+                result.append(m)
+
+        return self.filter(smiles__in=result)
+
+
 class Molecule(Data):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True,
                               help_text="Example field help text.", validators=[validate_smiles])
@@ -52,6 +65,7 @@ class Molecule(Data):
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
 
+    objects = MoleculeManager()
     def __str__(self):
         return self.inchi
 
