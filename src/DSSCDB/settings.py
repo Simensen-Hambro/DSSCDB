@@ -143,10 +143,12 @@ POST_OFFICE = {
 }
 
 EMAIL_BACKEND = 'post_office.EmailBackend'
-EMAIL_HOST = 'smtp.ansatt.ntnu.no'
-EMAIL_PORT = '25'
-EMAIL_HOST_USER = ''
-DEFAULT_FROM_MAIL = 'carl.j.v.hambro@ntnu.no'
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
 ADMINS = [('Carl Johan Hambro', 'carljh@stud.ntnu.no'),('Carl Johan Hambro', 'carljh@stud.ntnu.no'),]
 
