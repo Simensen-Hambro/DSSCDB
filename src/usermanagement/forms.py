@@ -50,6 +50,8 @@ class SignUpForm(forms.Form):
     password = forms.CharField(label='Password', max_length=255, widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='Confirm password', max_length=255, widget=forms.PasswordInput)
     captcha = ReCaptchaField()
+    agree_to_terms = forms.BooleanField(required=True,
+                                        label="I've read and accept the user agreement for using this site.")
 
     def clean(self):
         cleaned_data = super(SignUpForm, self).clean()

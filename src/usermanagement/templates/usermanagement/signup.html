@@ -1,6 +1,6 @@
 {% extends 'DSSCDB/base.html' %}
 {% load bootstrap3 %}
-
+{% load staticfiles %}
 {% block content %}
   <div class="container">
     <div class="row">
@@ -13,6 +13,7 @@
             <form action="{% url 'user:signup' %}" method="post" class="form">
               {% csrf_token %}
               {% bootstrap_form form %}
+              <a href="{% static 'DSSCDB/agreement.pdf' %}">User agreement</a>
               {% buttons %}
                 <button type="submit" class="btn btn-primary submit-button">Sign up</button>
               {% endbuttons %}
