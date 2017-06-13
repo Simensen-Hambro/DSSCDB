@@ -28,14 +28,7 @@
                   <div class="panel-body">
                     <img src="/media/{{ performance.molecule.image }}"
                          alt="Responsive image" class="materialboxed img-thumbnail molecule-detail-image">
-                    <div class="panel panel-default detail-panel">
-                      <div class="panel-body">
-                        <dl>
-                          <dt>INCHI</dt>
-                          <dd>{{ performance.molecule.inchi }}</dd>
-                        </dl>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
               </div>
@@ -45,18 +38,23 @@
                     <h3 class="panel-title">Spectrum</h3>
                   </div>
                   <div class="panel-body">
-                    <div class="panel panel-default detail-panel">
-                      <div class="panel-body">
-                        <dl>
-                          <dt>ABSORPTION MAXIMA</dt>
-                          <dd>{{ performance.molecule.spectrum.absorption_maxima }}</dd>
-                          <dt>EMISSION MAXIMA</dt>
-                          <dd>{{ performance.molecule.spectrum.emission_maxima }}</dd>
-                          <dt>SOLVENT</dt>
-                          <dd>{{ performance.molecule.spectrum.solvent }}</dd>
-                        </dl>
-                      </div>
-                    </div>
+                    <table class="table simple-table table-striped">
+                      <caption>Spectrum data</caption>
+                      <tbody>
+                      <tr>
+                        <th>ABSORPTION MAXIMA</th>
+                        <td>{{ performance.molecule.spectrum.absorption_maxima }}</td>
+                      </tr>
+                      <tr>
+                        <th>EMISSION MAXIMA</th>
+                        <td>{{ performance.molecule.spectrum.emission_maxima }}</td>
+                      </tr>
+                      <tr>
+                        <th>SOLVENT</th>
+                        <td>{{ performance.molecule.spectrum.solvent }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
                 <div class="panel panel-default">
@@ -64,24 +62,32 @@
                     <h3 class="panel-title">Article</h3>
                   </div>
                   <div class="panel-body">
-                    <div class="panel panel-default detail-panel">
-                      <div class="panel-body">
-                        <dl>
-                          <dt>DOI</dt>
-                          <dd>
-                            <a href="http://dx.doi.org/{{ performance.article.doi }}">{{ performance.article.doi }}</a>
-                          </dd>
-                          <dt>TITLE</dt>
-                          <dd>{{ performance.article.title }}</dd>
-                          <dt>AUTHOR</dt>
-                          <dd>{{ performance.article.author }}</dd>
-                          <dt>JOURNAL</dt>
-                          <dd>{{ performance.article.journal }}</dd>
-                          <dt>YEAR</dt>
-                          <dd>{{ performance.article.year|date:"Y" }}</dd>
-                        </dl>
-                      </div>
-                    </div>
+                    <table class="table simple-table table-striped">
+                      <caption>Article details</caption>
+                      <tbody>
+                      <tr>
+                        <th>DOI</th>
+                        <td><a href="http://dx.doi.org/{{ performance.article.doi }}"
+                               target="_blank">{{ performance.article.doi }} </a></td>
+                      </tr>
+                      <tr>
+                        <th>TITLE</th>
+                        <td>{{ performance.article.title }}</td>
+                      </tr>
+                      <tr>
+                        <th>AUTHOR</th>
+                        <td>{{ performance.article.author }}</td>
+                      </tr>
+                      <tr>
+                        <th>JOURNAL</th>
+                        <td>{{ performance.article.journal }}</td>
+                      </tr>
+                      <tr>
+                        <th>YEAR</th>
+                        <td>{{ performance.article.year|date:"Y" }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -93,40 +99,67 @@
                     <h3 class="panel-title">Performance</h3>
                   </div>
                   <div class="panel-body">
-                    <div class="panel panel-default detail-panel">
-                      <div class="panel-body">
-                        <dl>
-                          <dt>VOC</dt>
-                          <dd>{{ performance.voc }}</dd>
-                          <dt>JSC</dt>
-                          <dd>{{ performance.jsc }}</dd>
-                          <dt>FF</dt>
-                          <dd>{{ performance.ff }}</dd>
-                          <dt>PCE</dt>
-                          <dd>{{ performance.pce }}</dd>
-                          <dt>ELECTROLYTE</dt>
-                          <dd>{{ performance.electrolyte }}</dd>
-                          <dt>ACTIVE AREA</dt>
-                          <dd>{{ performance.active_area }}</dd>
-                          <dt>COADSORBENT</dt>
-                          <dd>{{ performance.co_adsorbent }}</dd>
-                          <dt>COSENSITIZER</dt>
-                          <dd>{{ performance.co_sensitizer }}</dd>
-                          <dt>SEMICONDUCTOR</dt>
-                          <dd>{{ performance.semiconductor }}</dd>
-                          <dt>DYE LOADING</dt>
-                          <dd>{{ performance.dye_loading }}</dd>
-                          <dt>EXPOSURE TIME</dt>
-                          <dd>{{ performance.exposure_time }}</dd>
-                          <dt>SOLAR SIMULATOR</dt>
-                          <dd>{{ performance.solar_simulator }}</dd>
-                          <dt>DSSC KEYWORDS</dt>
-                          <dd>{{ performance.keywords }}</dd>
-                          <dt>DSSC COMMENTS</dt>
-                          <dd>{{ performance.comment }}</dd>
-                        </dl>
-                      </div>
-                    </div>
+                    <table class="table simple-table table-striped">
+                      <caption>Performance details</caption>
+                      <tbody>
+                      <tr>
+                        <th>VOC</th>
+                        <td>{{ performance.voc }}</td>
+                      </tr>
+                      <tr>
+                        <th>JSC</th>
+                        <td>{{ performance.jsc }}</td>
+                      </tr>
+                      <tr>
+                        <th>FF</th>
+                        <td>{{ performance.ff }}</td>
+                      </tr>
+                      <tr>
+                        <th>PCE</th>
+                        <td>{{ performance.pce }}</td>
+                      </tr>
+                      <tr>
+                        <th>ELECTROLYTE</th>
+                        <td>{{ performance.electrolyte }}</td>
+                      </tr>
+                      <tr>
+                        <th>ACTIVE AREA</th>
+                        <td>{{ performance.active_area }}</td>
+                      </tr>
+                      <tr>
+                        <th>COADSORBENT</th>
+                        <td>{{ performance.co_adsorbent }}</td>
+                      </tr>
+                      <tr>
+                        <th>COSENSITIZER</th>
+                        <td>{{ performance.co_sensitizer }}</td>
+                      </tr>
+                      <tr>
+                        <th>SEMICONDUCTOR</th>
+                        <td>{{ performance.semiconductor }}</td>
+                      </tr>
+                      <tr>
+                        <th>DYE LOADING</th>
+                        <td>{{ performance.dye_loading }}</td>
+                      </tr>
+                      <tr>
+                        <th>EXPOSURE TIME</th>
+                        <td>{{ performance.exposure_time }}</td>
+                      </tr>
+                      <tr>
+                        <th>SOLAR SIMULATOR</th>
+                        <td>{{ performance.solar_simulator }}</td>
+                      </tr>
+                      <tr>
+                        <th>DSSC KEYWORDS</th>
+                        <td>{{ performance.keywords }}</td>
+                      </tr>
+                      <tr>
+                        <th>DSSC COMMENTS</th>
+                        <td>{{ performance.comment }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -137,9 +170,9 @@
     </div>
   </div>
   <script>
-    $(function () {
-      $('.materialboxed').materialbox();
-    });
+      $(function () {
+          $('.materialboxed').materialbox();
+      });
   </script>
 {% endblock content %}
 

@@ -142,3 +142,13 @@ table {
     padding-bottom: 5px;
     margin-right: 2px;
 }
+
+table.table.simple-table > tbody > tr > td {
+    border: 0px solid rgba(44, 62, 80, 0.30) !important;
+}
+
+table.table.simple-table > tbody > tr > th {
+    background-color: inherit;
+    color: var(--nav-color);
+    font-weight: bold;
+}
