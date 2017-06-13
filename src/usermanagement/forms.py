@@ -2,11 +2,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django import forms
 from usermanagement.models import Profile
+from captcha.fields import ReCaptchaField
 
 
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
+    captcha = ReCaptchaField()
 
     def clean(self):
         cleaned_data = super(LoginForm, self).clean()
@@ -47,6 +49,7 @@ class SignUpForm(forms.Form):
     affiliation = forms.CharField(label='Affiliation', max_length=255)
     password = forms.CharField(label='Password', max_length=255, widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='Confirm password', max_length=255, widget=forms.PasswordInput)
+    captcha = ReCaptchaField()
 
     def clean(self):
         cleaned_data = super(SignUpForm, self).clean()
@@ -92,6 +95,7 @@ class SignUpForm(forms.Form):
 
 class ForgotPasswordForm(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
+    captcha = ReCaptchaField()
 
     def clean(self):
         cleaned_data = super(ForgotPasswordForm, self).clean()
