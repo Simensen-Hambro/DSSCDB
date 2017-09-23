@@ -2,10 +2,7 @@ import re
 
 import bibtexparser
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import datetime
-
-from .models import Article
 
 
 def get_DOI_metadata(doi):
@@ -20,7 +17,7 @@ def get_DOI_metadata(doi):
     except IndexError:
         return None
 
-    new_article = {
+    new_article_data = {
         'author': article.get('author'),
         'title': article.get('title'),
         'journal': article.get('journal'),
@@ -33,23 +30,26 @@ def get_DOI_metadata(doi):
         'year': datetime(year=int(article.get('year')), month=1, day=1),
     }
 
-    return Article.objects.create(**new_article)
+    return new_article_data
 
 
 def to_decimal(string):
+    # Shapes "string" into a number with a best-effort attempt
     if not isinstance(string, float):
         illegal_characters = re.search('([^0-9^.^,^-])', string)
         if illegal_characters:
-            return illegal_characters.group(0)
+            return string
         else:
             rep = re.compile('(\-?\d*\.?\d+)')
 
             result = rep.search(string)
             if result:
-                return result.group(0)
+                return result
             else:
                 return None
     else:
+        if len(str(string)) >= 7:
+            string = round(string, 6)
         return string
 
 
@@ -63,16 +63,3 @@ def locate_start_data(sheet):
             start_data = row_index + 2
             break
     return start_data
-
-
-def get_or_create_article(article_doi):
-    created = False
-    try:
-        article = Article.objects.get(doi__iexact=article_doi)
-        # TODO: Add try and expect if connection to DOI is not found
-
-    except ObjectDoesNotExist:
-        article = get_DOI_metadata(article_doi)
-        created = True
-    return article, created
-

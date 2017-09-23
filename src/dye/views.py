@@ -10,7 +10,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
 
 from .forms import *
-from .helpers import get_or_create_article, locate_start_data, to_decimal
+from .helpers import locate_start_data, to_decimal
 from .models import Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
 
@@ -22,11 +22,11 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
         Objects: list of tuples containing the object it self as well as a boolean if it was created now
     """
     try:
-        article, created_article = get_or_create_article(article_form.cleaned_data.get('doi'))
-        if not article:
-            article_form.add_error('doi', 'DOI not found')
+        if not article_form.is_valid():
             raise FieldError
         else:
+            article, created_article = article_form.get_model()
+
             # article exists or was created
             created_molecule, created_spectrum, created_performance = False, False, False
             try:
@@ -53,20 +53,15 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
                 spectrum.article, spectrum.molecule = article, molecule
                 spectrum.save()
                 created_spectrum = True
-            try:
-                if not performance_form.is_valid():
-                    raise FieldError
-                # Try to get performance
-                performance = Performance.objects.get(article=article, molecule=molecule,
-                                                      voc=performance_form.data.get('voc'),
-                                                      jsc=performance_form.data.get('jsc'),
-                                                      ff=performance_form.data.get('ff'),
-                                                      pce=performance_form.data.get('pce'))
-            except ObjectDoesNotExist:
-                performance = performance_form.save(commit=False)
+
+            if not performance_form.is_valid(article, molecule):
+                raise FieldError
+
+            performance = performance_form.save(commit=False)
 
             performance.article, performance.molecule, performance.user = article, molecule, user
             performance.save()
+
             created_performance = True
 
             return True, [(article, created_article), (molecule, created_molecule), (spectrum, created_spectrum),
@@ -145,7 +140,7 @@ def file_upload(request):
                             # Populate article, molecule, spectrum and performance forms with the data from the user
 
                             article_form = ArticleForm({'doi': row[0]})
-                            article_form.is_valid()
+                            #article_form.is_valid()
                             molecule_form = MoleculeForm(
                                 {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
                             spectrum_form = SpectrumForm({
@@ -167,8 +162,8 @@ def file_upload(request):
 
                             passed, data = validate_raw_data(user=user, **forms)
                             _, _, _, r = data
-                            _, c = r
-                            if not c:
+                            _, created = r
+                            if not created:
                                 print("Row {} did not yield performance".format(row_index))
                             results.append(data)
 
@@ -183,8 +178,9 @@ def file_upload(request):
 
                     if total_status is not True:
                         raise IntegrityError
-            except IntegrityError:
-                pass
+            except IntegrityError as e:
+                #
+                print(e)
 
             if total_status is not True:
                 # Iterate over attribute error, for every row
@@ -321,7 +317,12 @@ def get_performances(**search):
 
     # Search after keyword
     if search.get('keyword'):
-        performances = performances.filter(keywords__icontains=search.get('keyword'))
+        keyword = search.get('keyword')
+        performances = performances.filter(molecule__keywords__icontains=keyword) | \
+                       performances.filter(article__keywords__icontains=keyword) | \
+                       performances.filter(electrolyte__icontains=keyword) | \
+                       performances.filter(comment__icontains=keyword)
+
 
     # Structure search
     if search.get('smiles'):

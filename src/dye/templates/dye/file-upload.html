@@ -3,6 +3,8 @@
 {% load bootstrap3 %}
 
 {% block content %}
+
+  <!-- Error message block -->
   {% if errors %}
     <div class="container">
       <div class="row">
@@ -22,13 +24,11 @@
                 </thead>
                 <tbody>
                 {% for error in errors %}
-                  {% if 'already exists' not in error.message|striptags %}
                     <tr>
                       <td><strong>{{ error.row }}</strong></td>
                       <td>{{ error.key }}</td>
                       <td>{{ error.message|striptags }}</td>
                     </tr>
-                  {% endif %}
                 {% endfor %}
                 </tbody>
               </table>
