@@ -1,10 +1,11 @@
-from django.db import models
-from django.contrib.auth.models import User
-from extended_choices import Choices
-from django.utils import timezone
-from datetime import timedelta
 import uuid
+from datetime import timedelta
+
 from django.contrib.auth.models import Permission
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
+from extended_choices import Choices
 
 # Time the activation is valid, in hours
 VALID_TIME = 48
@@ -65,15 +66,16 @@ class UserTokenManager(models.Manager):
 
 
 class UserToken(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='token')
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now=False, auto_now_add=True)
 
     objects = UserTokenManager()
 
     # Activates the user and deletes the authentication object
-    def activate(self):
-        self.user.is_active = True
+    def activate(self, approve=False):
+        if approve:
+            self.user.is_active = True
         self.user.save()
         self.delete()
 
@@ -86,3 +88,8 @@ class UserToken(models.Model):
     # Checks if the authentication object is expired
     def expired(self):
         return not timezone.now() < timedelta(hours=VALID_TIME) + self.created
+
+
+class UserApprovalToken(UserToken):
+    def activate(self):
+        super().activate(approve=True)

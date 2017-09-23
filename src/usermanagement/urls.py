@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^set-password/(?P<key>[0-9a-z-]+)/$', views.set_password_view, name='set-password'),
     url(r'^change-password/$', views.change_password_view, name='change-password'),
     url(r'^activate/(?P<key>[0-9a-z-]+)/$', views.activate, name='activate'),
+    url(r'^approve/(?P<key>[0-9a-z-]+)/$', views.approve_user, name='approve'),
     url(r'^profile/$', views.profile, name='profile'),
     url(r'^admin-users/$', views.admin_users, name='admin-users'),
 ]

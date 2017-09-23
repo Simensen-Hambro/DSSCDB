@@ -87,6 +87,7 @@ class SignUpForm(forms.Form):
                                    last_name=last_name,
                                    is_active=False)
         user.set_password(password)
+        user.is_active = False
         user.save()
 
         Profile.objects.create(user=user,

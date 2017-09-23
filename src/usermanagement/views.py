@@ -1,13 +1,15 @@
-from django.http import HttpResponseRedirect
-from django.contrib.auth import logout
-from usermanagement.forms import *
-from django.shortcuts import reverse, render, Http404
-from django.contrib import messages
-from usermanagement.models import *
-from post_office import mail
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import reverse, render, Http404
+from post_office import mail
+
+from usermanagement.forms import *
+from usermanagement.models import *
 from .helpers import get_ip_address_from_request
-from dye.models import Performance, APPROVAL_STATES
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -24,8 +26,6 @@ def login_view(request):
     else:
         form = LoginForm()
         next = request.GET.get('next')
-
-
 
     context = {
         'form': form,
@@ -52,7 +52,10 @@ def signup_view(request):
                       sender=settings.DEFAULT_FROM_MAIL,
                       template='activation_email',
                       context={'request': request, 'user': user, 'token': token})
-            messages.add_message(request, messages.INFO, 'You will receive a confirmation email to verify you email address')
+
+            messages.add_message(request, messages.INFO,
+                                 'You will receive a confirmation email to verify you email address. '
+                                 'An administrator will then approve your account before it can be used.')
             return HttpResponseRedirect(reverse('index'))
 
     else:
@@ -120,8 +123,31 @@ def change_password_view(request):
 def activate(request, key):
     try:
         token = UserToken.objects.get(key=key)
+        # token.activate()
+        messages.add_message(request, messages.INFO, 'Your email address is now confirmed. '
+                                                     'An administrator will approve your account before it can be used.')
+        approval_token = UserApprovalToken.objects.create(user=token.user)
+        _, mail_to = zip(*settings.ADMINS)
+        mail.send(recipients=list(mail_to),
+                  sender=settings.DEFAULT_FROM_MAIL,
+                  template='user_registration_notification',
+                  context={'user': token.user, 'token': approval_token, 'request': request})
+        return HttpResponseRedirect(reverse('index'))
+    except UserToken.DoesNotExist:
+        raise Http404
+
+
+@permission_required('usermanagement.change_user')
+def approve_user(request, key):
+    try:
+        token = UserApprovalToken.objects.get(key=key)
         token.activate()
-        messages.add_message(request, messages.INFO, 'Your account is now activated')
+        user = token.user
+        messages.add_message(request, messages.INFO, 'User has been approved')
+        mail.send(recipients=[user.email],
+                  sender=settings.DEFAULT_FROM_MAIL,
+                  template='user_account_approval',
+                  context={'request': request, 'user': user, 'token': token})
         return HttpResponseRedirect(reverse('index'))
     except UserToken.DoesNotExist:
         raise Http404
@@ -154,14 +180,11 @@ def profile(request):
     if not request.user.is_authenticated:
         raise Http404
 
-
     context = {
         'user_profile': request.user.profile,
     }
 
-
     return render(request, 'usermanagement/profile.html', context)
-
 
 
 def admin_users(request):
