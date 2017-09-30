@@ -33,7 +33,7 @@ class ArticleForm(forms.Form):
             else:
                 erred_fields = ', '.join(article_model.errors.keys())
                 self.add_error('doi',
-                               'DOI provided has incomplete ({}) data. Please us contact us regarding this.'.format(
+                               'DOI provided has incomplete ({}) data. Please contact us regarding this.'.format(
                                    erred_fields))
                 return False
                 # except TypeError:

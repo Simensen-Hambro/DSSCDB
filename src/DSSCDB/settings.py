@@ -11,18 +11,19 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+
 from django.shortcuts import reverse
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '@&$!ob(=ba&#-jhflz89k#ms8e^n&(snei88zr#n(_8i67t*o='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['*']
 context_processors = [
     'django.template.context_processors.media',
 ]
@@ -37,16 +38,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'DSSCDB',                       # Main project app
-    'dye',                          # App for chemistry data
-    'usermanagement',               # Custom app for user management
-    'sorl.thumbnail',               # Image thumbnails and caching
-    'extended_choices',             # Better enumeration support for choices
-    'bootstrap3',                   # Neat forms
-    'django.contrib.flatpages',     # Semi-dynamic pages such as "About"
-    'django.contrib.sites',         # Easy domain management
-    'post_office',                  # Mail plugin
-    'captcha',                      # Re-captcha for "I'm not a robot" validation
+    'DSSCDB',  # Main project app
+    'dye',  # App for chemistry data
+    'usermanagement',  # Custom app for user management
+    'sorl.thumbnail',  # Image thumbnails and caching
+    'extended_choices',  # Better enumeration support for choices
+    'bootstrap3',  # Neat forms
+    'django.contrib.flatpages',  # Semi-dynamic pages such as "About"
+    'django.contrib.sites',  # Easy domain management
+    'post_office',  # Mail plugin
+    'captcha',  # Re-captcha for "I'm not a robot" validation
+    'dbdump',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -75,7 +77,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
-},
+    },
 ]
 
 WSGI_APPLICATION = 'DSSCDB.wsgi.application'
@@ -136,21 +138,15 @@ THUMBNAIL_DEBUG = True
 THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_QUALITY = 100
 
-POST_OFFICE = {
-    'LOG_LEVEL': 2,
-    'DEFAULT_PRIORITY': 'now',
-
-}
-
-EMAIL_BACKEND = 'post_office.EmailBackend'
 EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'post_office.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_MAIL = EMAIL_HOST_USER
+DEFAULT_FROM_MAIL = os.environ.get('EMAIL_DEFAULT_SENDER', '')
 
-ADMINS = [('Carl Johan Hambro', 'carljh@stud.ntnu.no'),('Carl Johan Hambro', 'carljh@stud.ntnu.no'),]
+ADMINS = [('Carl Johan Hambro', 'carljh@stud.ntnu.no'),]
 
 
 LOGGING = {
@@ -167,6 +163,10 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': 'image.log',
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
     },
     'loggers': {
         'image': {
@@ -179,12 +179,18 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
     },
 }
 
-
-RECAPTCHA_PUBLIC_KEY = '6LcirRIUAAAAALA1LjUlHQ7Q8Bl4z2qsnCipqN-r'
-RECAPTCHA_PRIVATE_KEY = '6LcirRIUAAAAAAhfT2QqAeqOi6ImXLzYpVdTD586'
 NOCAPTCHA = True
 CAPTCHA_AJAX = True
 CAPTCHA_WIDGET_TEMPLATE = 'captcha/widget_nocaptcha.html'
+
+# Testing keys
+RECAPTCHA_PUBLIC_KEY = '6LdrnzIUAAAAAGC_b1lJX6dLgpXj_G1GpFu3_G9I'
+RECAPTCHA_PRIVATE_KEY = '6LdrnzIUAAAAAJD7kYs8fEn0CH_9NrFn8Jdi31Nt'

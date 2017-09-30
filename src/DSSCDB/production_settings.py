@@ -2,9 +2,10 @@ from .settings import *
 
 DEBUG = False
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'kadawd'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
+ALLOWED_HOSTS = ['127.0.0.1']#os.environ.get('ALLOWED_HOSTS')
+
 
 # Disable template caching
 TEMPLATES = [
@@ -27,9 +28,6 @@ TEMPLATES = [
     },
 ]
 
-
-
-
 # Postgres database
 DATABASES = {
     'default': {
@@ -37,8 +35,13 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'database',
+        'HOST': os.environ.get('POSTGRES_HOST'),
         'PORT': '5432',
         'CONN_MAX_AGE': 600,
     }
 }
+
+# Recaptcha keys
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
+

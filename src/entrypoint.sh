@@ -15,8 +15,8 @@ fi
 source activate rdkitenv
 
 echo "##### STARTING UWSGI CRON AS DAEMON #####"
-uwsgi -d /dev/null --module=DSSCDB.cron_wsgi:application --master --pidfile=/tmp/project-cron.pid --http=0.0.0.0:8001 --processes=5 --harakiri=300 --max-requests=5000 --vacuum
+uwsgi -d /dev/null --module=DSSCDB.cron_wsgi:application --master --pidfile=/tmp/project-cron.pid --logto /dev/stdout --http=0.0.0.0:8001 --processes=5 --harakiri=300 --max-requests=5000 --vacuum
 
 echo "##### UWSGI MAIN #####"
-uwsgi --module=DSSCDB.wsgi:application --master --pidfile=/tmp/project-master.pid --http=0.0.0.0:8000 --processes=5 --harakiri=300 --max-requests=5000 --vacuum
+uwsgi --module=DSSCDB.wsgi:application --master --pidfile=/tmp/project-master.pid --logto /dev/stderr --http=0.0.0.0:8000 --processes=5 --harakiri=300 --max-requests=5000 --vacuum
 #/opt/conda/envs/rdkitenv/bin/python -u /opt/.pycharm_helpers/pydev/pydevd.py --multiprocess --qt-support --port 53300 --file /code/src/manage.py runserver 8000

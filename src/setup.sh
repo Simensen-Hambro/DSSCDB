@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 rm db.sqlite3
 find . -iname "migrations" -exec rm -rf {} \;
 python manage.py makemigrations DSSCDB dye usermanagement thumbnail

@@ -9,11 +9,10 @@ application = get_wsgi_application()
 
 try:
     import uwsgidecorators
-    
 
-    @uwsgidecorators.timer(10)
+    @uwsgidecorators.timer(60)
     def send_queued_mail(num):
-        """Send queued mail every 10 seconds"""
+        """Send queued mail every 60 seconds"""
         call_command('send_queued_mail', processes=1)
 
 except ImportError:
