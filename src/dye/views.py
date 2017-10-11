@@ -140,20 +140,19 @@ def file_upload(request):
                             # Populate article, molecule, spectrum and performance forms with the data from the user
 
                             article_form = ArticleForm({'doi': row[0]})
-                            #article_form.is_valid()
                             molecule_form = MoleculeForm(
-                                {'user': user, 'smiles': row[15], 'inchi': row[16], 'keywords': row[20]})
+                                {'user': user, 'smiles': row[14], 'inchi': row[15], 'keywords': row[19]})
                             spectrum_form = SpectrumForm({
-                                'absorption_maxima': to_decimal(row[17]), 'emission_maxima': to_decimal(row[18]),
-                                'solvent': row[19]
+                                'absorption_maxima': to_decimal(row[16]), 'emission_maxima': to_decimal(row[17]),
+                                'solvent': row[18]
                             })
                             performance_form = PerformanceForm({
                                 'voc': to_decimal(row[1]), 'jsc': to_decimal(row[2]), 'ff': to_decimal(row[3]),
                                 'pce': to_decimal(row[4]), 'electrolyte': row[5], 'active_area': row[6],
                                 'co_adsorbent': row[7],
                                 'co_sensitizer': row[8], 'semiconductor': row[9], 'dye_loading': row[10],
-                                'exposure_time': row[11], 'solar_simulator': row[12], 'keywords': row[13],
-                                'comment': row[14]
+                                'exposure_time': row[11], 'solar_simulator': row[12],
+                                'comment': row[13]
                             })
 
                             forms = {'article_form': article_form, 'molecule_form': molecule_form,

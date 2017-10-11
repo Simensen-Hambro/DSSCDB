@@ -60,7 +60,7 @@ class MoleculeManager(models.Manager):
 
 class Molecule(Data):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True,
-                              help_text="Example field help text.", validators=[validate_smiles])
+                              help_text="Benzene: C1=CC=CC=C1", validators=[validate_smiles])
     inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
@@ -93,7 +93,7 @@ class Article(Data):
 
 
 class Spectrum(Data):
-    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10, help_text="[kg/s]")
+    absorption_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10, help_text="[nm]")
     emission_maxima = models.DecimalField(blank=True, null=True, decimal_places=4, max_digits=10)
     solvent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
@@ -112,21 +112,18 @@ class Spectrum(Data):
 
 
 class Performance(Data):
-    voc = models.DecimalField(verbose_name='VOC', decimal_places=4, max_digits=15)
-    jsc = models.DecimalField(verbose_name='JSC', decimal_places=5, max_digits=15)
+    voc = models.DecimalField(verbose_name='VOC', decimal_places=4, max_digits=15, help_text='[mV]')
+    jsc = models.DecimalField(verbose_name='JSC', decimal_places=5, max_digits=15, help_text='[mA/cm^2]')
     ff = models.DecimalField(verbose_name='FF', decimal_places=5, max_digits=13)
-    pce = models.DecimalField(verbose_name='PCE', decimal_places=5, max_digits=13)
+    pce = models.DecimalField(verbose_name='PCE', decimal_places=5, max_digits=13, help_text='%, 0-1')
     electrolyte = models.CharField(max_length=1000)
-    active_area = models.CharField(max_length=30, help_text='cm2', blank=True, null=True)
+    active_area = models.CharField(max_length=30, help_text='[cm2]', blank=True, null=True)
     co_adsorbent = models.CharField(max_length=250, blank=True, null=True)
     co_sensitizer = models.CharField(max_length=1000, blank=True, null=True)
     semiconductor = models.CharField(max_length=1000)
-    dye_loading = models.CharField(max_length=1000, help_text='nmol/cm2')
+    dye_loading = models.CharField(max_length=1000, help_text='[nmol/cm2]')
     exposure_time = models.CharField(max_length=500)
-    solar_simulator = models.CharField(max_length=1000)
-
-    # Remove? YES
-    keywords = models.CharField(max_length=1000, blank=True, null=True)
+    solar_simulator = models.CharField(max_length=1000, default='AM 1.5g')
 
     short_id = TinyUUIDField(length=10)
 

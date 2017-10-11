@@ -100,7 +100,6 @@ class PerformanceForm(forms.ModelForm):
             'dye_loading',
             'exposure_time',
             'solar_simulator',
-            'keywords',
             'comment',
         ]
 
