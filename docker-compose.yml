@@ -2,7 +2,7 @@ version: '2'
 services:
   database:
     restart: always
-    image: postgres:latest
+    image: postgres:9.3
     env_file: env
     volumes:
       - ./logs/db:/var/log/postgresql

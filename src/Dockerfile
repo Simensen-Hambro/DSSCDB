@@ -1,7 +1,7 @@
 FROM martsime/dsscdb:latest
 
 RUN apt-get update
-RUN apt-get install build-essential -y
+RUN apt-get install build-essential zip postgresql -y
 
 ENV PATH /opt/conda/envs/rdkitenv/bin:$PATH
 
