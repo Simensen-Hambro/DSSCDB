@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # Easy domain management
     'post_office',  # Mail plugin
     'captcha',  # Re-captcha for "I'm not a robot" validation
-    'dbdump',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -194,3 +193,5 @@ CAPTCHA_WIDGET_TEMPLATE = 'captcha/widget_nocaptcha.html'
 # Testing keys
 RECAPTCHA_PUBLIC_KEY = '6LdrnzIUAAAAAGC_b1lJX6dLgpXj_G1GpFu3_G9I'
 RECAPTCHA_PRIVATE_KEY = '6LdrnzIUAAAAAJD7kYs8fEn0CH_9NrFn8Jdi31Nt'
+
+DATABASE_EMAIL_PASSWORD = os.environ.get('DATABASE_EMAIL_PASSWORD', '')
