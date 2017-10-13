@@ -7,6 +7,11 @@ services:
     volumes:
       - ./logs/db:/var/log/postgresql
       - dbdata:/var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+
 
   website:
     restart: always
@@ -21,6 +26,11 @@ services:
     expose:
       - "8000"
     entrypoint: /entrypoint.sh
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+
 
   proxy:
     build: ./nginx
@@ -32,6 +42,11 @@ services:
       - /etc/localtime:/etc/localtime:ro
     links:
       - website:website
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+
 
 volumes:
   dbdata:
