@@ -17,7 +17,7 @@ try:
         call_command('send_queued_mail', processes=1)
 
 
-    @uwsgidecorators.cron(-1, -1, -1, -1, -1)
+    @uwsgidecorators.cron(4, 4, -1, -1, 1)
     def send_database_backup_email(num):
         call_command('send_database_backup', **{'--backup_password': settings.DATABASE_EMAIL_PASSWORD})
 
