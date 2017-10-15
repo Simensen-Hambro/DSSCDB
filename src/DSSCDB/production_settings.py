@@ -2,9 +2,9 @@ from .settings import *
 
 DEBUG = False
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'kadawd'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['127.0.0.1']#os.environ.get('ALLOWED_HOSTS')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(', ')
 
 
 # Disable template caching
