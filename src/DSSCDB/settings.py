@@ -144,6 +144,7 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_MAIL = os.environ.get('EMAIL_DEFAULT_SENDER', '')
+SERVER_EMAIL = DEFAULT_FROM_MAIL
 
 ADMINS = [('Carl Johan Hambro', 'carljh@stud.ntnu.no'),]
 
