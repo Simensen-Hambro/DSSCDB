@@ -235,7 +235,7 @@ def contribution_performances(request, short_id):
     performances = Performance.objects.filter(contribution__in=atomic_contrib_performances)
     approval_form = None
 
-    if request.user.has_perm('dye.contribution.set_contribution_status'):
+    if request.user.has_perm('dye.set_contribution_status'):
         approval_form = ApprovalForm(request.POST or None, instance=contribution)
 
         if request.method == 'POST':
