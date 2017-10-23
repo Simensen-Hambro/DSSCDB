@@ -1,18 +1,47 @@
 {% extends 'DSSCDB/base.html' %}
 {% load static %}
-
+Dye Sensitized Solar Cell Database
 {% block content %}
+  <div class="jumbotron">
+    <div class="container">
+      <h2 class="display-3">Dye Sensitized Solar Cell Database</h2>
+      <p>Welcome to DSSC database! </p>
+      <p><a href="#" role="button">Sign up</a> and <a href="{% url 'user:login' %}">log in</a> to browse the database
+      </p>
+    </div>
+  </div>
   <div class="container">
     <div class="row">
-      <div class="col-md-6 col-md-offset-3 frontpage-text">
-        <h2>Dye Sensitized Solar Cell Database</h2>
-      </div>
-      <div class="col-md-6 col-md-offset-3 frontpage-text">
-        <img src="{% static 'DSSCDB/images/frontpage_image.png' %}" class="img-responsive frontpage-image"
-             alt="Responsive image">
-      </div>
-      <div class="col-md-6 col-md-offset-3 frontpage-text frontpage-small-text">
-        <h4><a href="{% url 'user:signup' %}">Sign up</a> and <a href="{% url 'user:login' %}">log in</a> to browse the database</h4>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <h2>Dyes</h2>
+            <p>
+              Dyes and pigments have a vast area of applications ranging from colorants for plastics,
+              to printing inks, cosmetics, papers and paints. Modern applications include imaging
+              where fluorescent dyes for instance are great current interest in chemical biology.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <h2>Recently</h2>
+            <p>In recent years, sensitizing dyes for usage in dye sensitized solar cells have
+              attracted considerable attention. Although much work is required to reach optimal
+              device efficiencies, significant effort has gone into improving the photophysical
+              and photochemical properties of dyes. In addition to the dye, changes to the
+              cell fabrication process and modifications to other components such as the photoanode,
+              electrolyte and counter electrodes impact both the efficiency and stability of DSSCs.
+            </p>
+
+          </div>
+          <div class="col-md-4">
+            <h2>This collection</h2>
+            <p>In an attempt to collate these various parameters, we have created the DSSC
+              database that summarizes the recent developments in the different components,
+              with particular attention given to the dye structures.
+            </p>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
