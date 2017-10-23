@@ -69,6 +69,9 @@ class Molecule(Data):
 
     objects = MoleculeManager()
 
+    class Meta:
+        unique_together = ('smiles', 'inchi')
+
     def __str__(self):
         return self.inchi
 
@@ -77,9 +80,9 @@ class Article(Data):
     author = models.CharField(max_length=1000)
     title = models.CharField(max_length=1000)
     journal = models.CharField(max_length=250)
-    volume = models.CharField(max_length=100)
+    volume = models.CharField(max_length=100, blank=True, null=True)
     doi = models.CharField(max_length=500, verbose_name='DOI', unique=True)
-    pages = models.CharField(max_length=20)
+    pages = models.CharField(max_length=20, blank=True, null=True)
     issue_nr = models.CharField(max_length=100, blank=True, null=True)
     eid = models.CharField(blank=True, null=True, max_length=100)
     year = models.DateField()

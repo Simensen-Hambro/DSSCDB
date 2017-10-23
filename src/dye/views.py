@@ -32,7 +32,7 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
             try:
                 # We try to fetch the molecule
                 molecule_form.is_valid()
-                molecule = Molecule.objects.get(inchi=molecule_form.data.get('inchi'))
+                molecule = Molecule.objects.get(inchi=molecule_form.data.get('inchi'), smiles=molecule_form.data.get('smiles'))
             except ObjectDoesNotExist:
                 # Molecule was not found, and therefore is_valid should now pass unless the user has erred
                 if not molecule_form.is_valid():
@@ -178,7 +178,6 @@ def file_upload(request):
                     if total_status is not True:
                         raise IntegrityError
             except IntegrityError as e:
-                #
                 print(e)
 
             if total_status is not True:
