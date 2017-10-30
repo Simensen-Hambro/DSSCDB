@@ -72,7 +72,7 @@ class Command(BaseCommand):
         if self.user:
             main_args += ['--username={}'.format(self.user)]
         if self.host:
-            main_args += ['--host={}]'.format(self.host)]
+            main_args += ['--host={}'.format(self.host)]
         if self.port:
             main_args += ['--port={}'.format(self.port)]
 
