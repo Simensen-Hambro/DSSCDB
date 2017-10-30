@@ -124,8 +124,8 @@ class Performance(Data):
     co_adsorbent = models.CharField(max_length=250, blank=True, null=True)
     co_sensitizer = models.CharField(max_length=1000, blank=True, null=True)
     semiconductor = models.CharField(max_length=1000)
-    dye_loading = models.CharField(max_length=1000, help_text='[nmol/cm2]')
-    exposure_time = models.CharField(max_length=500)
+    dye_loading = models.CharField(max_length=1000, help_text='[nmol/cm2]', blank=True, null=True)
+    exposure_time = models.CharField(max_length=500, blank=True, null=True)
     solar_simulator = models.CharField(max_length=1000, default='AM 1.5g')
 
     short_id = TinyUUIDField(length=10)
