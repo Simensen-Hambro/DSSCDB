@@ -5,7 +5,7 @@ Dye Sensitized Solar Cell Database
   <div class="jumbotron">
     <div class="container">
       <h2 class="display-3">Dye Sensitized Solar Cell Database</h2>
-      <p>Welcome to DSSC database! </p>
+      <p>Welcome to DSSC database! A comprehensive collection of solar efficiencies</p>
       <p><a href="{% url 'user:signup' %}" role="button">Sign up</a> and <a href="{% url 'user:login' %}">log in</a> to browse the database
       </p>
     </div>
@@ -14,16 +14,8 @@ Dye Sensitized Solar Cell Database
     <div class="row">
       <div class="container">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <h2>Dyes</h2>
-            <p>
-              Dyes and pigments have a vast area of applications ranging from colorants for plastics,
-              to printing inks, cosmetics, papers and paints. Modern applications include imaging
-              where fluorescent dyes for instance are great current interest in chemical biology.
-            </p>
-          </div>
-          <div class="col-md-4">
-            <h2>Recently</h2>
             <p>In recent years, sensitizing dyes for usage in dye sensitized solar cells have
               attracted considerable attention. Although much work is required to reach optimal
               device efficiencies, significant effort has gone into improving the photophysical
@@ -31,14 +23,10 @@ Dye Sensitized Solar Cell Database
               cell fabrication process and modifications to other components such as the photoanode,
               electrolyte and counter electrodes impact both the efficiency and stability of DSSCs.
             </p>
-
           </div>
-          <div class="col-md-4">
-            <h2>This collection</h2>
-            <p>In an attempt to collate these various parameters, we have created the DSSC
-              database that summarizes the recent developments in the different components,
-              with particular attention given to the dye structures.
-            </p>
+          <div class="col-md-6">
+            <h2>Efficencies</h2>
+            <img src="{% static 'DSSCDB/images/dye_plots.png' %}" class="img-responsive">
           </div>
 
         </div>
