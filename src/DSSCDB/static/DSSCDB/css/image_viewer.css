@@ -37,3 +37,11 @@
   z-index: 1000;
   -webkit-font-smoothing: antialiased;
 }
+
+.img-thumbnail {
+    border: none;
+}
+
+td {
+    word-break: break-all;
+}

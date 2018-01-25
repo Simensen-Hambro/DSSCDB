@@ -158,8 +158,11 @@ class PerformanceRangeSearchForm(forms.Form):
 
 
 class PerformanceKeywordSearchForm(forms.Form):
-    keyword = forms.CharField(max_length=1000, required=False)
+    keyword = forms.CharField(max_length=1000,
+                              required=False,
+                              widget=forms.TextInput(attrs={'placeholder': 'Free text search'}))
 
 
 class PerformanceStructureSearchForm(forms.Form):
     smiles = forms.CharField(max_length=1000, required=False)
+    complete_molecule = forms.BooleanField(required=False)

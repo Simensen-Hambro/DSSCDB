@@ -9,10 +9,13 @@ from django.db import IntegrityError, transaction
 from django.forms import modelformset_factory
 from django.shortcuts import reverse, render, redirect, Http404
 
+from django.db.models import Q
 from .forms import *
 from .helpers import locate_start_data, to_decimal
 from .models import Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
+import csv
+from django.http import StreamingHttpResponse
 
 def validate_raw_data(article_form, molecule_form, spectrum_form, performance_form, user):
     """
@@ -32,7 +35,8 @@ def validate_raw_data(article_form, molecule_form, spectrum_form, performance_fo
             try:
                 # We try to fetch the molecule
                 molecule_form.is_valid()
-                molecule = Molecule.objects.get(inchi=molecule_form.data.get('inchi'), smiles=molecule_form.data.get('smiles'))
+                molecule = Molecule.objects.get(Q(inchi=molecule_form.data.get('inchi')) |
+                                                Q(smiles=molecule_form.data.get('smiles')))
             except ObjectDoesNotExist:
                 # Molecule was not found, and therefore is_valid should now pass unless the user has erred
                 if not molecule_form.is_valid():
@@ -178,6 +182,8 @@ def file_upload(request):
                     if total_status is not True:
                         raise IntegrityError
             except IntegrityError as e:
+                messages.add_message(request, messages.ERROR,
+                                     'Critical error at row {}. '.format(row_index))
                 print(e)
 
             if total_status is not True:
@@ -255,13 +261,11 @@ def my_contributions(request):
     return render(request, 'dye/my_contributions.html', context={'contributions': contributions})
 
 
-@login_required
 def performance_list(request):
     context = paginate_performances(request, get_performances(), {})
     return render(request, 'dye/performance_list.html', context)
 
 
-@login_required
 def performance_details(request, short_id):
     try:
         performance = Performance.objects.get(short_id=short_id)
@@ -269,13 +273,14 @@ def performance_details(request, short_id):
         raise Http404
 
     context = {
-        'performance': performance
+        'performance': performance,
+        'related_form':PerformanceStructureSearchForm(initial={'smiles':performance.molecule.smiles,
+                                                               'complete_molecule': True}),
     }
 
     return render(request, 'dye/performance_detail.html', context)
 
 
-@login_required
 def performance_search(request):
     context = {}
     context['search'] = False
@@ -324,7 +329,12 @@ def get_performances(**search):
 
     # Structure search
     if search.get('smiles'):
-        matching_molecules = Molecule.objects.search_substructure(search.get('smiles'))
+        # If the molecule search is not a partial structure
+        if search.get('complete_molecule'):
+            matching_molecules = Molecule.objects.filter(smiles=search.get('smiles'))
+        else:
+            matching_molecules = Molecule.objects.search_substructure(search.get('smiles'))
+
         performances = performances.filter(molecule__in=matching_molecules)
 
     # Search after different range criterias

@@ -84,3 +84,10 @@ dl {
 table tbody tr.clickable-row:hover {
     cursor: pointer;
 }
+
+.mol-container {
+  width: 100% !important;
+  height: 400px;
+  position: relative;
+  margin-bottom: 23px;
+}

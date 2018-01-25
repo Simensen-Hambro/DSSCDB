@@ -61,11 +61,12 @@ class MoleculeManager(models.Manager):
 class Molecule(Data):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True,
                               help_text="Benzene: C1=CC=CC=C1", validators=[validate_smiles])
-    inchi = models.CharField(max_length=1000, verbose_name='INCHI', unique=True)
+    inchi = models.CharField(max_length=1000, verbose_name='InChI', unique=True)
     image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
+    representation_3d = models.TextField(blank=True)
 
     objects = MoleculeManager()
 

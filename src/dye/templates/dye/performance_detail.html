@@ -1,6 +1,7 @@
 {% extends 'DSSCDB/base.html' %}
 {% load thumbnail %}
 {% load static %}
+{% load bootstrap3 %}
 
 {% block styles %}
   <link href="{% static 'DSSCDB/css/image_viewer.css' %}" rel="stylesheet" type="text/css">
@@ -9,104 +10,162 @@
 
 {% block head-scripts %}
   <script type="text/javascript" src="{% static 'DSSCDB/javascript/image_viewer.min.js' %}"></script>
+  <script src="{% static 'dye/javascript/3Dmol-min.js' %}"></script>
 {% endblock head-scripts %}
+
+{% block footer-scripts %}
+  <script>
+      $(function () {
+          var viewer = $3Dmol.createViewer("3D-container");
+          viewer.setBackgroundColor(0xffffff);
+
+          var rec = viewer.addModelsAsFrames($('#structure').val(), "sdf");
+          rec.setStyle({stick: {colorscheme: "Jmol"}});
+          viewer.render();
+          viewer.zoomTo();
+      });
+
+  </script>
+
+{% endblock footer-scripts %}
+
 {% block content %}
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="panel panel-default full-page-panel">
-          <div class="panel-heading">
-            <h3 class="panel-title">Performance data</h3>
-          </div>
-          <div class="panel-body panel-content">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Molecule</h3>
-                  </div>
-                  <div class="panel-body">
-                    <img src="/media/{{ performance.molecule.image }}"
-                         alt="Responsive image" class="materialboxed img-thumbnail molecule-detail-image">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default full-page-panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">Performance data</h3>
+        </div>
+        <div class="panel-body panel-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Molecule</h3>
+                </div>
+                <div class="panel-body">
+
+
+                  <div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs">
+                      <li class="active">
+                        <a href="#2D-molecule" data-toggle="tab">
+                          2D
+                        </a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#3D-molecule" data-toggle="tab">
+                          3D
+                        </a>
+                      </li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                      <div role="tabpanel" class="tab-pane active" id="2D-molecule">
+                        <img src="/media/{{ performance.molecule.image }}"
+                             alt="Responsive image" class="materialboxed img-thumbnail molecule-detail-image">
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="3D-molecule">
+                        <div id="3D-container" class="mol-container"></div>
+                        <textarea id="structure" style="visibility:hidden;position: absolute;">M0001{{ performance.molecule.representation_3d }}</textarea>
+                      </div>
+                    </div>
 
                   </div>
 
+                  <form action="{% url 'dye:performance-search' %}" method="post" class="form" id="search-form">
+                    {% csrf_token %}
+                    {{ related_form.smiles.as_hidden }}
+                    {{ related_form.complete_molecule.as_hidden }}
+                    {% buttons %}
+                      <button class="btn btn-primary btn-sm submit-button">
+                        Related molecule performances
+                        <span class="glyphicon glyphicon-search glyphicon-align-left" aria-hidden="true"></span>
+                      </button>
+                    {% endbuttons %}
+                  </form>
+                </div>
+
+                <table class="table simple-table table-striped">
+                  <tbody>
+                  <tr>
+                    <th>InChI</th>
+                    <td>{{ performance.molecule.inchi }}</td>
+                  </tr>
+                  <tr>
+                    <th>SMILES</th>
+                    <td>{{ performance.molecule.smiles }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Spectrum</h3>
+                </div>
+                <div class="panel-body">
                   <table class="table simple-table table-striped">
+                    <caption>Spectrum data</caption>
                     <tbody>
                     <tr>
-                      <th>InChI</th>
-                      <td>{{ performance.molecule.inchi }}</td>
+                      <th>ABSORPTION MAXIMA</th>
+                      <td>{{ performance.molecule.spectrum.absorption_maxima }}</td>
                     </tr>
                     <tr>
-                      <th>SMILES</th>
-                      <td>{{ performance.molecule.smiles }}</td>
+                      <th>EMISSION MAXIMA</th>
+                      <td>{{ performance.molecule.spectrum.emission_maxima }}</td>
+                    </tr>
+                    <tr>
+                      <th>SOLVENT</th>
+                      <td>{{ performance.molecule.spectrum.solvent }}</td>
                     </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Spectrum</h3>
-                  </div>
-                  <div class="panel-body">
-                    <table class="table simple-table table-striped">
-                      <caption>Spectrum data</caption>
-                      <tbody>
-                      <tr>
-                        <th>ABSORPTION MAXIMA</th>
-                        <td>{{ performance.molecule.spectrum.absorption_maxima }}</td>
-                      </tr>
-                      <tr>
-                        <th>EMISSION MAXIMA</th>
-                        <td>{{ performance.molecule.spectrum.emission_maxima }}</td>
-                      </tr>
-                      <tr>
-                        <th>SOLVENT</th>
-                        <td>{{ performance.molecule.spectrum.solvent }}</td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Article</h3>
                 </div>
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Article</h3>
-                  </div>
-                  <div class="panel-body">
-                    <table class="table simple-table table-striped">
-                      <caption>Article details</caption>
-                      <tbody>
-                      <tr>
-                        <th>DOI</th>
-                        <td><a href="http://dx.doi.org/{{ performance.article.doi }}"
-                               target="_blank">{{ performance.article.doi }} </a></td>
-                      </tr>
-                      <tr>
-                        <th>TITLE</th>
-                        <td>{{ performance.article.title }}</td>
-                      </tr>
-                      <tr>
-                        <th>AUTHOR</th>
-                        <td>{{ performance.article.author }}</td>
-                      </tr>
-                      <tr>
-                        <th>JOURNAL</th>
-                        <td>{{ performance.article.journal }}</td>
-                      </tr>
-                      <tr>
-                        <th>YEAR</th>
-                        <td>{{ performance.article.year|date:"Y" }}</td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                <div class="panel-body">
+                  <table class="table simple-table table-striped">
+                    <caption>Article details</caption>
+                    <tbody>
+                    <tr>
+                      <th>DOI</th>
+                      <td><a href="http://dx.doi.org/{{ performance.article.doi }}"
+                             target="_blank">{{ performance.article.doi }} </a></td>
+                    </tr>
+                    <tr>
+                      <th>TITLE</th>
+                      <td>{{ performance.article.title }}</td>
+                    </tr>
+                    <tr>
+                      <th>AUTHOR</th>
+                      <td>{{ performance.article.author }}</td>
+                    </tr>
+                    <tr>
+                      <th>JOURNAL</th>
+                      <td>{{ performance.article.journal }}</td>
+                    </tr>
+                    <tr>
+                      <th>YEAR</th>
+                      <td>{{ performance.article.year|date:"Y" }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="col">
                 <div class="panel panel-default">
                   <div class="panel-heading">
                     <h3 class="panel-title">Performance</h3>
@@ -186,6 +245,15 @@
       $(function () {
           $('.materialboxed').materialbox();
       });
+
+
+      $(document).ready(function () {
+          $(".nav-tabs a").click(function () {
+              $(this).tab('show');
+              $(window).trigger('resize');
+          });
+      });
+
   </script>
 {% endblock content %}
 
