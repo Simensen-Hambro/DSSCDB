@@ -10,6 +10,7 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from django.conf import settings
 
+
 @receiver(post_save, sender=Molecule)
 def generate_image(sender, instance, signal, created, **kwargs):
     logger = logging.getLogger('image')

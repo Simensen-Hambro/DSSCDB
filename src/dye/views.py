@@ -1,3 +1,6 @@
+import csv
+import itertools
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -6,16 +9,15 @@ from django.core.exceptions import FieldError
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.forms import modelformset_factory
+from django.http import StreamingHttpResponse
 from django.shortcuts import reverse, render, redirect, Http404
 
-from django.db.models import Q
 from .forms import *
 from .helpers import locate_start_data, to_decimal
 from .models import Molecule, Spectrum, Performance, Contribution, APPROVAL_STATES
 
-import csv
-from django.http import StreamingHttpResponse
 
 def validate_raw_data(article_form, molecule_form, spectrum_form, performance_form, user):
     """
@@ -274,8 +276,8 @@ def performance_details(request, short_id):
 
     context = {
         'performance': performance,
-        'related_form':PerformanceStructureSearchForm(initial={'smiles':performance.molecule.smiles,
-                                                               'complete_molecule': True}),
+        'related_form': PerformanceStructureSearchForm(initial={'smiles': performance.molecule.smiles,
+                                                                'complete_molecule': True}),
     }
 
     return render(request, 'dye/performance_detail.html', context)
@@ -325,7 +327,6 @@ def get_performances(**search):
                        performances.filter(article__keywords__icontains=keyword) | \
                        performances.filter(electrolyte__icontains=keyword) | \
                        performances.filter(comment__icontains=keyword)
-
 
     # Structure search
     if search.get('smiles'):
@@ -390,3 +391,59 @@ def paginate_performances(request, performance_list, context):
     context['num_pages'] = paginator.num_pages
 
     return context
+
+
+class Echo:
+    # https://docs.djangoproject.com/en/2.0/howto/outputting-csv/#streaming-large-csv-files
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+def download_all_performances_csv(request):
+    """A view that streams a large CSV file."""
+    # Generate a sequence of rows. The range is based on the maximum number of
+    # rows that can be handled by a single sheet in most spreadsheet
+    # applications.
+
+    all_performances = list(Performance.objects.all().select_related('molecule', 'article', 'molecule__spectrum'))
+
+    rows = ([instance.voc, instance.jsc, instance.ff, instance.pce, instance.electrolyte,
+             instance.active_area, instance.co_adsorbent, instance.co_sensitizer,
+             instance.semiconductor, instance.dye_loading, instance.exposure_time,
+             instance.solar_simulator, instance.comment,
+
+             instance.article.author, instance.article.title, instance.article.journal, instance.article.volume,
+             instance.article.doi, instance.article.pages, instance.article.issue_nr, instance.article.eid,
+             instance.article.year, instance.article.electronic_id, instance.article.keywords,
+
+             instance.molecule.smiles, instance.molecule.keywords,
+
+             instance.molecule.spectrum.absorption_maxima, instance.molecule.spectrum.emission_maxima,
+             instance.molecule.spectrum.solvent]
+            for instance in all_performances
+            )
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    first_row = ["VOC", "JSC", "FF", "PCE", "Electrolyte", "Active area", "Co-adsorbent", "Co-sensitizer",
+                 "Semiconductor", "Dye loading", "Exposure time", "Solar simulator", "Performance comment",
+
+                 "Article author", "Article title", "Article journal", "Article volume", "Article DOI",
+                 "Article pages", "Article issue nr", "Article EID", "Article year", "Article year",
+                 "Article electronic id", "Article keywords",
+
+                 "Molecule SMILE", "Molecule keywords",
+
+                 "Molecule spectrum absorption maxima", "Molecule spectrum emission maxima",
+                 "Molecule spectrum solvent"]
+
+    # Add the first row to the generator ("rows") with the help of itertools
+    response = StreamingHttpResponse((writer.writerow(row) for row in itertools.chain([first_row], rows)),
+                                     content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="datadump.csv"'
+    return response

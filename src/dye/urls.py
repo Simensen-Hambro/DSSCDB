@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^contributions/(?P<short_id>[0-9a-f]{10})/$', views.contribution_performances, name='single-evaluation'),
     url(r'^contributions/$', views.contributions_evaluation_overview, name='evaluate-contributions'),
     url(r'^my-contributions/$', views.my_contributions, name='my-contributions'),
+    url(r'^batch-download/$', views.download_all_performances_csv, name='batch-download')
 ]
