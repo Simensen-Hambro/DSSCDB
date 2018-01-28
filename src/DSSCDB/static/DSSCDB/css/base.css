@@ -152,3 +152,7 @@ table.table.simple-table > tbody > tr > th {
     color: var(--nav-color);
     font-weight: bold;
 }
+
+html, body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+   font-family: 'IBM Plex Sans', "Helvetica Neue", Arial, Roboto, sans-serif !important;
+}
