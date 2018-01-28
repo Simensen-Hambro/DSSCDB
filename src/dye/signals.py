@@ -9,6 +9,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from django.conf import settings
+import pybel
 
 
 @receiver(post_save, sender=Molecule)
@@ -23,12 +24,32 @@ def generate_image(sender, instance, signal, created, **kwargs):
         AllChem.Compute2DCoords(molecule)
         file_name = 'molecules/' + '{}.{}'.format(image_name, format)
         image_url = settings.MEDIA_ROOT + '/' +  file_name
-
+        # 2D representation by RDKIT
         try:
             os.makedirs(os.path.dirname(image_url), exist_ok=True)
             Draw.MolToFile(molecule, image_url, size=(400, 400), type=format)
             instance.image = file_name
-            instance.save()
             logger.info('INFO: Image {} generated for SMILES: {}'.format(image_url, smiles))
         except Exception as e:
             logger.error('ERROR: Error message: {}, for SMILES: {}'.format(e, smiles))
+
+        sdf_string = generate_3d_coordinates(instance.smiles)
+        if sdf_string == '':
+            logger.error('ERROR: Failed to generate SDF for {}'.format(instance.smiles))
+
+        instance.representation_3d = sdf_string
+
+        instance.save()
+
+
+def generate_3d_coordinates(smiles):
+    # 3D-representation by Openbabel
+    sdf_string = ''
+    try:
+        pybelmol = pybel.readstring('smi', smiles)
+        pybelmol.make3D()
+        sdf_string = pybelmol.write("sdf")
+    except Exception as e:
+        pass
+
+    return sdf_string
