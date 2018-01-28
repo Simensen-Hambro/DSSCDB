@@ -12,6 +12,8 @@ then
   python manage.py collectstatic --noinput
 fi
 
+python manage.py loaddata email_templates.json
+
 echo "##### STARTING UWSGI CRON AS DAEMON #####"
 uwsgi -d /dev/null --module=DSSCDB.cron_wsgi:application --pidfile=/tmp/project-cron.pid --master --http=0.0.0.0:8001 --processes=1 --harakiri=300 --enable-threads --vacuum
 

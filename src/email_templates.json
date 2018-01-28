@@ -1,0 +1,92 @@
+[
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 1,
+    "fields": {
+      "name": "activation_email",
+      "description": "Email sent to users when they sign up. It containts a link so they can activate their email.",
+      "created": "2017-01-15T13:46:00.780Z",
+      "last_updated": "2017-10-15T17:38:06.657Z",
+      "subject": "Confirmation of email",
+      "content": "Hi, {{ user.first_name }}!\r\n\r\nAn administrator must approve your user before it can be used. This request is sent as soon as your email has been confirmed. Click the link below and an administrator will activate your account within 24-48 hours. \r\n\r\nConfirm email: http://{{ request.get_host }}/user/activate/{{ token.key }}/\r\n\r\nKind regards,\r\nThe team at DyesRus",
+      "html_content": "<h3>Hi, {{ user.first_name }}!</h3>\r\n\r\n<p>An administrator must approve your user before it can be used. This request is sent as soon as your email has been confirmed. Click the link below and an administrator will activate your account within 24-48 hours. </p>\r\n\r\n<p>Confirm here: <a href=\"http://{{ request.get_host }}/user/activate/{{ token.key }}/\">http://{{ request.get_host }}/user/activate/{{ token.key }}/</a></p>\r\n\r\n<p>Kind regards,</p>\r\n<p>The team at DyesRus</p>",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 2,
+    "fields": {
+      "name": "set_password_email",
+      "description": "Email sent to users when they have forgot their password. Contains link to a page where they can set a new password.",
+      "created": "2017-01-15T14:29:19.147Z",
+      "last_updated": "2017-10-15T17:33:25.652Z",
+      "subject": "Forgotten password",
+      "content": "Here you have a link to reset your password:\r\n\r\nLink: http://{{ request.get_host }}/user/set-password/{{ token.key }}/\r\n\r\nKind regards,\r\nThe team at DyesRus",
+      "html_content": "<p>Here you have a link to reset your password:</p>\r\n\r\n<p>Link: <a href=\"http://{{ request.get_host }}/user/set-password/{{ token.key }}/\">http://{{ request.get_host }}/user/set-password/{{ token.key }}/</a></p>\r\n\r\n<p>Kind regards,</p>\r\n<p>The team at DyesRus</p>",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 3,
+    "fields": {
+      "name": "contact_form_email",
+      "description": "The email that is sent to the webmasters when someone submits a message with the \"contact us\"-form.",
+      "created": "2017-01-22T17:23:08.520Z",
+      "last_updated": "2017-01-22T17:24:10.559Z",
+      "subject": "Contact form submission",
+      "content": "You have been contacted!\r\nWho: {{ contact_name|default_if_none:\"Not given\" }}\r\nEmail: {{ contact_email|default_if_none:\"Not given\" }}\r\nWhen: {% now \"j. F - H:i\" %}\r\nMessage: {{message}}'",
+      "html_content": "You have been contacted!<br>\r\nWho: {{ contact_name|default_if_none:\"Not given\" }}<br>\r\nEmail: {{ contact_email|default_if_none:\"Not given\" }}<br>\r\nWhen: {% now \"j. F - H:i\" %}<br><br>\r\nMessage: {{message}}'",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 4,
+    "fields": {
+      "name": "user_registration_notification",
+      "description": "Notification to site admin to confirm users.",
+      "created": "2017-10-15T17:24:22.512Z",
+      "last_updated": "2017-10-15T17:31:16.532Z",
+      "subject": "",
+      "content": "A user has signed up and needs approval.\r\n\r\nName: {{ user.get_full_name }}\r\nAffiliation: {{ user.profile.affiliation }}\r\nOrganization: {{ user.profile.organization }}\r\nIP: {{ user.profile.ip }}\r\n\r\nConfirm email: http://{{ request.get_host }}{% url \"user:approve\" token.key %}\r\n\r\nKind regards,\r\nThe team at DyesRus",
+      "html_content": "A user has signed up and needs approval.<br><br>\r\n\r\nName: {{ user.get_full_name }}<br>\r\nAffiliation: {{ user.profile.affiliation }}<br>\r\nOrganization: {{ user.profile.organization }}<br>\r\nIP: {{ user.profile.ip }}<br><br>\r\n\r\nConfirm email: http://{{ request.get_host }}{% url \"user:approve\" token.key %}<br><br>\r\n\r\nKind regards,\r\nThe team at DyesRus",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 5,
+    "fields": {
+      "name": "user_account_approval",
+      "description": "",
+      "created": "2017-10-15T17:39:05.470Z",
+      "last_updated": "2017-10-15T17:39:05.470Z",
+      "subject": "Account approved",
+      "content": "Hi {{ user.get_full_name }}!\r\n\r\nYour account has been approved and is ready to be used. Do not hesitate to contact us should any questions arise. \r\n\r\nKind regards,\r\nThe team at DyesRus",
+      "html_content": "Hi {{ user.get_full_name }}!<br><br>\r\n\r\nYour account has been approved and is ready to be used. Do not hesitate to contact us should any questions arise. \r\n<br><br>\r\nKind regards,<br>\r\nThe team at DyesRus",
+      "language": "",
+      "default_template": null
+    }
+  },
+  {
+    "model": "post_office.emailtemplate",
+    "pk": 6,
+    "fields": {
+      "name": "database_backup_mail",
+      "description": "database_backup_mail",
+      "created": "2017-10-23T09:44:57.807Z",
+      "last_updated": "2017-10-23T09:47:15.369Z",
+      "subject": "Backup",
+      "content": "Attached is the current backup, it was executed on {% now \"j.m.y\" %}.",
+      "html_content": "",
+      "language": "",
+      "default_template": null
+    }
+  }
+]
