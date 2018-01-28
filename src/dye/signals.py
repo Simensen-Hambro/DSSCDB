@@ -9,7 +9,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from django.conf import settings
-import pybel
+from .helpers import generate_coordinates_babel
 
 
 @receiver(post_save, sender=Molecule)
@@ -33,23 +33,10 @@ def generate_image(sender, instance, signal, created, **kwargs):
         except Exception as e:
             logger.error('ERROR: Error message: {}, for SMILES: {}'.format(e, smiles))
 
-        sdf_string = generate_3d_coordinates(instance.smiles)
+        sdf_string = generate_coordinates_babel(instance.smiles)
         if sdf_string == '':
             logger.error('ERROR: Failed to generate SDF for {}'.format(instance.smiles))
 
         instance.representation_3d = sdf_string
 
         instance.save()
-
-
-def generate_3d_coordinates(smiles):
-    # 3D-representation by Openbabel
-    sdf_string = ''
-    try:
-        pybelmol = pybel.readstring('smi', smiles)
-        pybelmol.make3D()
-        sdf_string = pybelmol.write("sdf")
-    except Exception as e:
-        pass
-
-    return sdf_string

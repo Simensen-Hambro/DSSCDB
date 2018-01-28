@@ -3,6 +3,7 @@ import re
 import bibtexparser
 import requests
 from django.utils.timezone import datetime
+import pybel
 
 
 def get_DOI_metadata(doi):
@@ -63,3 +64,14 @@ def locate_start_data(sheet):
             start_data = row_index + 2
             break
     return start_data
+
+
+
+def generate_coordinates_babel(smiles):
+    try:
+        pybelmol = pybel.readstring('smi', smiles)
+        pybelmol.make3D()
+        sdf_string = pybelmol.write("sdf")
+        return sdf_string
+    except:
+        return ''
