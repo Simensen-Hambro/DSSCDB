@@ -447,3 +447,7 @@ def download_all_performances_csv(request):
                                      content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="datadump.csv"'
     return response
+
+
+def batch_download_info(request):
+    return render(request, 'dye/batch_download.html')

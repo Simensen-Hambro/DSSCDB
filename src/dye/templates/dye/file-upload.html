@@ -47,6 +47,8 @@
             <h3 class="panel-title">Batch upload spreadsheet data </h3>
           </div>
           <div class="panel-body panel-content">
+          <p>Use this form of upload if you prefer to work in a batches. Note that the spreadsheet is validated
+          thoroughly, and a <a href="{% static "dye/example.xls" %}">template file</a> must be used.</p>
             <form action="{% url 'dye:file-upload' %}" method="post" class="form file-upload-form"
                   enctype="multipart/form-data">
               {% csrf_token %}

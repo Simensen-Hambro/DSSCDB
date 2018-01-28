@@ -20,20 +20,30 @@
           <img class="menu-icon" src="{% static "DSSCDB/images/ic_info_outline_white_24px.svg" %}">
           About</a>
         </li>
-        <li>
-        <a href="{% url 'dye:performance-search' %}">
-            <img class="menu-icon" src="{% static "DSSCDB/images/ic_list_white_24px.svg" %}">Browse</a>
-        </li>
+
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-             aria-expanded="false">
-            <img class="menu-icon" src="{% static "DSSCDB/images/ic_file_upload_white_24px.svg" %}">
-            Upload <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'dye:single-upload' %}">Single record</a></li>
-            <li><a href="{% url 'dye:file-upload' %}">File</a></li>
-          </ul>
-        </li>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+           aria-expanded="false">
+          <img class="menu-icon" src="{% static "DSSCDB/images/ic_list_white_24px.svg" %}">
+          Browse <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'dye:performance-search' %}">Browse</a></li>
+          <li><a href="{% url 'dye:batch-download' %}">Batch download</a></li>
+        </ul>
+      </li>
+
+
+
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+           aria-expanded="false">
+          <img class="menu-icon" src="{% static "DSSCDB/images/ic_file_upload_white_24px.svg" %}">
+          Upload <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'dye:single-upload' %}">Single record</a></li>
+          <li><a href="{% url 'dye:file-upload' %}">File</a></li>
+        </ul>
+      </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if not request.user.is_authenticated %}
