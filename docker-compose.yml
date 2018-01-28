@@ -2,7 +2,7 @@ version: '2'
 services:
   database:
     restart: always
-    image: postgres:9.3
+    image: postgres:9.4
     env_file: env
     volumes:
       - ./logs/db:/var/log/postgresql
@@ -25,7 +25,7 @@ services:
     env_file: env
     expose:
       - "8000"
-    entrypoint: /entrypoint.sh
+    #entrypoint: /entrypoint.sh
     logging:
       driver: json-file
       options:
