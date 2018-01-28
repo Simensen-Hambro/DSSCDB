@@ -3,7 +3,7 @@ from django.test import Client
 from django.test import TestCase
 
 from usermanagement.models import *
-
+import os
 
 class UserTokenTestCase(TestCase):
     def setUp(self):
@@ -27,7 +27,7 @@ class UserTokenTestCase(TestCase):
     def test_activation_of_user(self):
         self.assertFalse(self.user.is_active, 'Checks if user is active before activation')
         self.activation_token.activate()
-        self.assertTrue(self.user.is_active, 'Checks if user is active after activation')
+        self.assertTrue(self.user.is_active, 'Checks if user is active before activation')
 
         # Checks if the UserToken does exist after activation
         with self.assertRaises(UserToken.DoesNotExist):
@@ -62,11 +62,19 @@ class LoginViewAndLogoutViewTestCase(TestCase):
         self.user.set_password(self.password)
         self.user.save()
         self.url = reverse('user:login')
+
+        # Testing with ReCaptcha requires a setting and passing a flag to the form
+        # https://github.com/praekelt/django-recaptcha#unit-testing
+        os.environ['RECAPTCHA_TESTING'] = 'True'
         self.payload = {
             'email': self.user.email,
             'password': self.password,
+            'g-recaptcha-response': 'PASSED'
         }
         self.client = Client()
+
+    def tearDown(self):
+        os.environ['RECAPTCHA_TESTING'] = 'False'
 
     def test_login_succesful(self):
         self.client.get(self.url)
@@ -119,6 +127,7 @@ class SignupUserViewTestCase(TestCase):
         self.email = 'test@test.test'
         self.password = 'Test1234'
         self.url = reverse('user:signup')
+        os.environ['RECAPTCHA_TESTING'] = 'True'
         self.payload = {
             'first_name': 'test',
             'last_name': 'test',
@@ -126,9 +135,14 @@ class SignupUserViewTestCase(TestCase):
             'organization': 'NTNU',
             'affiliation': 'Professor',
             'password': self.password,
-            'confirm_password': self.password
+            'confirm_password': self.password,
+            'g-recaptcha-response': 'PASSED',
+            'agree_to_terms': "True",
         }
         self.client = Client()
+
+    def tearDown(self):
+        os.environ['RECAPTCHA_TESTING'] = 'False'
 
     def test_successful_signup(self):
         self.client.get(self.url)
@@ -161,10 +175,17 @@ class ForgotPasswordViewTestCase(TestCase):
         self.user.set_password("Test1234")
         self.user.save()
         self.url = reverse('user:forgot-password')
+
+        os.environ['RECAPTCHA_TESTING'] = 'True'
         self.payload = {
             'email': self.user.email,
+            'g-recaptcha-response': 'PASSED'
         }
         self.client = Client()
+
+
+    def tearDown(self):
+        os.environ['RECAPTCHA_TESTING'] = 'False'
 
     def test_forgot_password_successful(self):
         self.client.get(self.url)
@@ -274,6 +295,7 @@ class SetPasswordViewTestCase(TestCase):
 
 
 class ActivateUserTestCase(TestCase):
+    fixtures = ['email_templates.json']
     def setUp(self):
         self.username = 'test'
         self.user = User.objects.create(username=self.username,

@@ -73,9 +73,8 @@ class UserToken(models.Model):
     objects = UserTokenManager()
 
     # Activates the user and deletes the authentication object
-    def activate(self, approve=False):
-        if approve:
-            self.user.is_active = True
+    def activate(self):
+        self.user.is_active = True
         self.user.save()
         self.delete()
 
@@ -92,4 +91,4 @@ class UserToken(models.Model):
 
 class UserApprovalToken(UserToken):
     def activate(self):
-        super().activate(approve=True)
+        super().activate()

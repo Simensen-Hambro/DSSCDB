@@ -123,7 +123,6 @@ def change_password_view(request):
 def activate(request, key):
     try:
         token = UserToken.objects.get(key=key)
-        # token.activate()
         messages.add_message(request, messages.INFO, 'Your email address is now confirmed. '
                                                      'An administrator will approve your account before it can be used.')
         approval_token = UserApprovalToken.objects.create(user=token.user)
