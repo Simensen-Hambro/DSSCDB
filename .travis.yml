@@ -19,11 +19,12 @@ before_install:
    - conda info -a
 
    # create and activate the build/test environment
-   - conda create -q -n tenv python=3.5
+   - conda create -q -n tenv python=3.6
    - source activate tenv
 
 install:
     - conda install -q -c rdkit rdkit
+    - conda install -c openbabel openbabel
     - pip install -r src/requirements.txt
 
 before_script:
