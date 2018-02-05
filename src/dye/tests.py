@@ -3,7 +3,7 @@ from django.shortcuts import reverse
 from django.test import TestCase, Client
 
 from .models import Performance
-
+from .validators import validate_inchi, validate_smiles, ValidationError
 
 class FileUploadTestCase(TestCase):
     def setUp(self):
@@ -111,3 +111,12 @@ class SingleUploadTest(TestCase):
         self.assertEquals(performance.molecule.smiles, form_data.get('smiles'))
 
         self.assertIn('OpenBabel', performance.molecule.representation_3d)
+
+
+class ValidationTest(TestCase):
+    def test_invalid_inchi(self):
+        with self.assertRaises(ValidationError):
+            validate_smiles('E')
+
+    def test_valid_inchi(self):
+        self.assertIsNone(validate_smiles('C'))

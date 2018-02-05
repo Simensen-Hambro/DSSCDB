@@ -1,9 +1,17 @@
-from rdkit.Chem import MolFromInchi, MolFromSmiles
 from django.core.exceptions import ValidationError
+from pybel import readstring
+from rdkit.Chem import MolFromInchi
 
 
 def validate_smiles(data):
-    molecule = MolFromSmiles(data)
+    molecule = None
+    try:
+        molecule = readstring('smiles', data)
+
+    # Catch all, as Pybel doesn't have useful Python exceptions
+    except:
+        pass
+
     if not molecule:
         raise ValidationError('"{}" is not a valid SMILES'.format(data))
 
