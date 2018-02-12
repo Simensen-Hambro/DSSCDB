@@ -8,9 +8,7 @@ from django.db import models
 from django.shortcuts import reverse
 from extended_choices import Choices
 from rdkit import Chem
-from sorl.thumbnail import ImageField
 from tinyuuidfield.fields import TinyUUIDField
-from operator import itemgetter
 from .validators import validate_smiles
 
 APPROVAL_STATES = Choices(
@@ -75,7 +73,7 @@ class Molecule(Data):
     smiles = models.CharField(max_length=1000, verbose_name='SMILES', unique=True,
                               help_text="Benzene: C1=CC=CC=C1", validators=[validate_smiles])
     inchi = models.CharField(max_length=1000, verbose_name='InChI', unique=True)
-    image = ImageField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
+    image = models.FileField(upload_to='molecules', verbose_name='Picture', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, auto_now=False)
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
