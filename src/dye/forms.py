@@ -1,3 +1,4 @@
+import pybel
 from django import forms
 
 from .helpers import get_DOI_metadata
@@ -166,3 +167,18 @@ class PerformanceKeywordSearchForm(forms.Form):
 class PerformanceStructureSearchForm(forms.Form):
     smiles = forms.CharField(max_length=1000, required=False)
     complete_molecule = forms.BooleanField(required=False)
+
+    def is_valid(self):
+        super().is_valid()
+        # The form can be empty, return true if so
+        if not self.cleaned_data.get('smiles'):
+            return True
+
+        try:
+            # The SMILES was not empty, must be validated
+            molecule = pybel.Smarts(self.cleaned_data.get('smiles'))
+            if molecule:
+                return True
+        except OSError:
+            self.add_error(None, 'Invalid SMARTS pattern. Please consult the OpenBabel documentation.')
+            return False

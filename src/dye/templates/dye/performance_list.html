@@ -61,8 +61,18 @@
                     <div class="col-md-6"> {% bootstrap_field range_form.max_pce %} </div>
                   </div>
                 {% endif %}
+
+
+                <!-- Substructure molecule search -->
                 {% if structure_form %}
+
                   {% bootstrap_field structure_form.smiles field_class="hidden" label_class="hidden" %}
+
+                  {% if structure_form.non_field_errors %}
+                    <div class="has-error">
+                      <div class="help-block"><h4>{{ structure_form.non_field_errors|striptags }}</h4></div>
+                    </div>
+                  {% endif %}
                 {% endif %}
                 <div>
                   <div id="jsme_container">
@@ -76,6 +86,8 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Form submit button -->
                 {% buttons %}
                   <button class="btn btn-primary submit-button">Search</button>
                 {% endbuttons %}
@@ -87,7 +99,7 @@
 
             {% if hits %}
               <p class="matches-text">{{ hits }} matches found.</p>
-          {% endif %}
+            {% endif %}
             {% if performances %}
               {% include 'dye/performance_list_table.html' %}
             {% else %}

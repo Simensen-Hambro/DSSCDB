@@ -45,7 +45,7 @@ class Spreadsheet(Data):
 
 
 class MoleculeManager(models.Manager):
-    def search_substructure1(self, query_smiles):
+    def search_substructure_rdkit(self, query_smiles):
         pattern = Chem.MolFromSmiles(query_smiles)
         all_molecules_smiles = self.all().values_list('smiles', flat=True)
 
@@ -66,7 +66,7 @@ class MoleculeManager(models.Manager):
             if query_molecule.findall(pybel_mol):
                 result.append(molecule.id)
 
-        return self.filter(smiles__in=result)
+        return self.filter(pk__in=result)
 
 
 class Molecule(Data):
