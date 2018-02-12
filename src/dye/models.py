@@ -1,5 +1,6 @@
 from itertools import chain
 
+import pybel
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -9,7 +10,7 @@ from extended_choices import Choices
 from rdkit import Chem
 from sorl.thumbnail import ImageField
 from tinyuuidfield.fields import TinyUUIDField
-
+from operator import itemgetter
 from .validators import validate_smiles
 
 APPROVAL_STATES = Choices(
@@ -46,7 +47,7 @@ class Spreadsheet(Data):
 
 
 class MoleculeManager(models.Manager):
-    def search_substructure(self, query_smiles):
+    def search_substructure1(self, query_smiles):
         pattern = Chem.MolFromSmiles(query_smiles)
         all_molecules_smiles = self.all().values_list('smiles', flat=True)
 
@@ -54,6 +55,18 @@ class MoleculeManager(models.Manager):
         for m in all_molecules_smiles:
             if Chem.MolFromSmiles(m).HasSubstructMatch(pattern):
                 result.append(m)
+
+        return self.filter(smiles__in=result)
+
+    def search_substructure(self, query_smiles):
+        query_molecule = pybel.Smarts(query_smiles)
+        all_molecules = Molecule.objects.all()
+        result = []
+        for molecule in all_molecules:
+            pybel_mol = pybel.readstring("smiles", molecule.smiles)
+
+            if query_molecule.findall(pybel_mol):
+                result.append(molecule.id)
 
         return self.filter(smiles__in=result)
 
