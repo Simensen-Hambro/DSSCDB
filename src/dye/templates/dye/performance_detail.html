@@ -20,6 +20,7 @@
           viewer.setBackgroundColor(0xffffff);
 
           var rec = viewer.addModelsAsFrames($('#structure').val(), "sdf");
+          rec.setStyle({style: "stick"});
           rec.setStyle({stick: {colorscheme: "Jmol"}});
           viewer.render();
           viewer.zoomTo();
@@ -68,7 +69,8 @@
                       </div>
                       <div role="tabpanel" class="tab-pane" id="3D-molecule">
                         <div id="3D-container" class="mol-container"></div>
-                        <textarea id="structure" style="visibility:hidden;position: absolute;">M0001{{ performance.molecule.representation_3d }}</textarea>
+                        <textarea id="structure"
+                                  style="visibility:hidden;position: absolute;">M0001{{ performance.molecule.representation_3d }}</textarea>
                       </div>
                     </div>
 
