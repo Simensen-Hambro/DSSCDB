@@ -180,5 +180,5 @@ class PerformanceStructureSearchForm(forms.Form):
             if molecule:
                 return True
         except OSError:
-            self.add_error(None, 'Invalid SMARTS pattern. Please consult the OpenBabel documentation.')
+            self.add_error(None, 'Invalid structure.')
             return False
