@@ -41,7 +41,6 @@ class Command(BaseCommand):
         if not ('postgres' in self.engine):
             raise CommandError('Only Postgres database is supported.')
 
-        self.stdout.write(self.style.NOTICE(self.help))
         backup_directory = options.get('backup_directory')
 
         outfile = self.destination_filename(backup_directory, self.db)

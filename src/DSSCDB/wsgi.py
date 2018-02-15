@@ -1,5 +1,5 @@
 """
-WSGI config for DSSCDB project.
+WSGI config for DYEDB project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
