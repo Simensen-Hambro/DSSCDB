@@ -10,12 +10,15 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from django.conf import settings
 from .helpers import generate_coordinates_babel
+import pybel
 
 
 @receiver(post_save, sender=Molecule)
 def generate_image(sender, instance, signal, created, **kwargs):
     logger = logging.getLogger('image')
     if created:
+
+        # SVG file generation
         format = kwargs.get('format') or 'svg'
 
         image_name = uuid4().hex[:10]
@@ -32,11 +35,14 @@ def generate_image(sender, instance, signal, created, **kwargs):
             logger.info('INFO: Image {} generated for SMILES: {}'.format(image_url, smiles))
         except Exception as e:
             logger.error('ERROR: Error message: {}, for SMILES: {}'.format(e, smiles))
-
+        # SDF (3D-coordinates) generations
         sdf_string = generate_coordinates_babel(instance.smiles)
         if sdf_string == '':
             logger.error('ERROR: Failed to generate SDF for {}'.format(instance.smiles))
 
         instance.representation_3d = sdf_string
+
+        # Fingerprint generation
+        # TODO
 
         instance.save()

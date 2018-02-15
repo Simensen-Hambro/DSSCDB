@@ -74,6 +74,11 @@ class MoleculeForm(forms.ModelForm):
     def validate_unique(self):
         pass
 
+    # TODO: Add function to make SMILES canonical
+    # pybel_mol = pybel.readstring('smiles', instance.smiles)
+    # smiles_canonical = molecule.write('can').rstrip()
+    # instance.smiles = smiles_canonical
+
 
 class SpectrumForm(forms.ModelForm):
     class Meta:
@@ -165,8 +170,17 @@ class PerformanceKeywordSearchForm(forms.Form):
 
 
 class PerformanceStructureSearchForm(forms.Form):
+    SUBSTRUCTURE = 'SUB'
+    FINGERPRINT = 'FP'
+    SEARCH_TYPES = (
+        (SUBSTRUCTURE, 'Substructure'),
+        (FINGERPRINT, 'Similarity')
+    )
+
     smiles = forms.CharField(max_length=1000, required=False)
     complete_molecule = forms.BooleanField(required=False)
+    search_type = forms.ChoiceField(choices=SEARCH_TYPES, label='Structure search type', widget=forms.RadioSelect)
+    tanimoto_threshold = forms.DecimalField(decimal_places=2, max_digits=3, initial=0.85)
 
     def is_valid(self):
         super().is_valid()

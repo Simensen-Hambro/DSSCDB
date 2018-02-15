@@ -290,6 +290,7 @@ def performance_search(request):
         range_form = PerformanceRangeSearchForm(request.POST)
         keyword_form = PerformanceKeywordSearchForm(request.POST)
         structure_form = PerformanceStructureSearchForm(request.POST)
+
         if range_form.is_valid() and keyword_form.is_valid() and structure_form.is_valid():
             performances = get_performances(**range_form.cleaned_data, **keyword_form.cleaned_data,
                                             **structure_form.cleaned_data)
@@ -299,7 +300,8 @@ def performance_search(request):
     else:
         range_form = PerformanceRangeSearchForm()
         keyword_form = PerformanceKeywordSearchForm()
-        structure_form = PerformanceStructureSearchForm()
+        structure_form = PerformanceStructureSearchForm(
+            initial={'search_type': PerformanceStructureSearchForm.SUBSTRUCTURE})
         performances = get_performances()
         context = paginate_performances(request, performances, context)
 
@@ -328,16 +330,6 @@ def get_performances(**search):
                        performances.filter(electrolyte__icontains=keyword) | \
                        performances.filter(comment__icontains=keyword)
 
-    # Structure search
-    if search.get('smiles'):
-        # If the molecule search is not a partial structure
-        if search.get('complete_molecule'):
-            matching_molecules = Molecule.objects.filter(smiles=search.get('smiles'))
-        else:
-            matching_molecules = Molecule.objects.search_substructure(search.get('smiles'))
-
-        performances = performances.filter(molecule__in=matching_molecules)
-
     # Search after different range criterias
     if search.get('min_voc'):
         performances = performances.filter(voc__gte=search.get('min_voc'))
@@ -355,6 +347,19 @@ def get_performances(**search):
         performances = performances.filter(pce__lte=search.get('min_pce'))
     if search.get('max_pce'):
         performances = performances.filter(pce__lte=search.get('max_pce'))
+
+    # Structure search
+    if search.get('smiles'):
+        # If the molecule search is not a partial structure
+        if search.get('complete_molecule'):
+            performances = performances.filter(molecule__smiles=search.get('smiles'))
+        else:
+            if search.get('search_type') == PerformanceStructureSearchForm.SUBSTRUCTURE:
+                molecules = Molecule.objects.substructure_search(search.get('smiles'))
+            else:
+                molecules = Molecule.objects.similarity_search(search.get('smiles'),
+                                                               tanimoto_threshold=search.get('tanimoto_threshold'))
+            performances = performances.filter(molecule__in=molecules)
 
     return performances
 

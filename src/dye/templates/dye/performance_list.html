@@ -62,11 +62,18 @@
                   </div>
                 {% endif %}
 
-
+                <hr />
                 <!-- Substructure molecule search -->
                 {% if structure_form %}
-
-                  {% bootstrap_field structure_form.smiles field_class="hidden" label_class="hidden" %}
+                  <div class="row">
+                    <div class="col-md-6">
+                      {% bootstrap_field structure_form.search_type %}
+                      {% bootstrap_field structure_form.smiles field_class="hidden" label_class="hidden" %}
+                    </div>
+                    <div class="col-md-6">
+                      {% bootstrap_field structure_form.tanimoto_threshold %}
+                    </div>
+                  </div>
 
                   {% if structure_form.non_field_errors %}
                     <div class="has-error">

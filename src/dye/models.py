@@ -1,4 +1,5 @@
 from itertools import chain
+from operator import itemgetter
 
 import pybel
 from django.contrib.auth.models import User
@@ -9,6 +10,7 @@ from django.shortcuts import reverse
 from extended_choices import Choices
 from rdkit import Chem
 from tinyuuidfield.fields import TinyUUIDField
+
 from .validators import validate_smiles
 
 APPROVAL_STATES = Choices(
@@ -45,28 +47,46 @@ class Spreadsheet(Data):
 
 
 class MoleculeManager(models.Manager):
-    def search_substructure_rdkit(self, query_smiles):
-        pattern = Chem.MolFromSmiles(query_smiles)
-        all_molecules_smiles = self.all().values_list('smiles', flat=True)
+    def substructure_search(self, query_smiles):
+        # Convert molecule SMILES by passing it through a RDKIT molecule object to ensure that it is kukulized
+        query_molecule = pybel.readstring('smiles', query_smiles)
+        query_canonical = query_molecule.write('can')
+        query_smarts = pybel.Smarts(query_canonical)
 
-        result = []
-        for m in all_molecules_smiles:
-            if Chem.MolFromSmiles(m).HasSubstructMatch(pattern):
-                result.append(m)
-
-        return self.filter(smiles__in=result)
-
-    def search_substructure(self, query_smiles):
-        query_molecule = pybel.Smarts(query_smiles)
-        all_molecules = Molecule.objects.all()
+        all_molecules = self.get_queryset().filter(status=APPROVAL_STATES.APPROVED)
         result = []
         for molecule in all_molecules:
-            pybel_mol = pybel.readstring("smiles", molecule.smiles)
-
-            if query_molecule.findall(pybel_mol):
-                result.append(molecule.id)
+            molecule_pybel = pybel.readstring('smiles', molecule.smiles)
+            matches = query_smarts.findall(molecule_pybel)
+            if matches:
+                result.append(molecule.pk)
 
         return self.filter(pk__in=result)
+
+    def similarity_search(self, query_smiles, tanimoto_threshold=0.8):
+        # Fetch all molecules
+        all_molecules = self.get_queryset().filter(status=APPROVAL_STATES.APPROVED)
+
+        # The fingerprint bits are stored as comma separated string, split it, and int all values, for all molecules
+        # Result is stored as a tuple with the primary key of the molecule
+        all_bitlists = [([int(b) for b in m.fingerprint.split(',')], m.id) for m in all_molecules]
+
+        # Create Pybel fingerprints for all the molecule bits. Store it in a tuple with the PK of the molecule
+        all_fingerprints = [(pybel.Fingerprint(f[0]), f[1]) for f in all_bitlists]
+
+        # Convert query molecue into a fingerprint
+        query_molecule = pybel.readstring('smiles', query_smiles)
+        query_fp = query_molecule.calcfp()
+
+        # Compare each molecule fingerprint with the query fingerprint, store tuple if the score is above a threshold
+        matches = [(query_fp | molecule[0], molecule[1]) for molecule in all_fingerprints
+                   if query_fp | molecule[0] > tanimoto_threshold]
+
+        ids = []
+        if matches:
+            scores, ids = zip(*matches)
+
+        return self.filter(pk__in=ids)
 
 
 class Molecule(Data):
@@ -78,6 +98,8 @@ class Molecule(Data):
 
     keywords = models.CharField(max_length=1000, blank=True, null=True)
     representation_3d = models.TextField(blank=True)
+
+    fingerprint = models.CharField(max_length=1000, blank=True, null=True)
 
     objects = MoleculeManager()
 
