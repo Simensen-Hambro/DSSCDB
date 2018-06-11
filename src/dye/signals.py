@@ -14,7 +14,12 @@ import pybel
 
 
 @receiver(post_save, sender=Molecule)
-def generate_image(sender, instance, signal, created, **kwargs):
+def generate_molecule_data(sender, instance, signal, created, **kwargs):
+    """
+    A signal to create extra data for molecules.
+    2D image representation, 3D-coordinates (SDF) and fingerprint string for
+    search.
+    """
     logger = logging.getLogger('image')
     if created:
 
@@ -42,7 +47,7 @@ def generate_image(sender, instance, signal, created, **kwargs):
 
         instance.representation_3d = sdf_string
 
-        # Fingerprint generation
-        # TODO
+        pybel_object = pybel.readstring('smiles', instance.smiles)
+        instance.fingerprint = str(pybel_object.calcfp(fptype='fp2'))
 
         instance.save()

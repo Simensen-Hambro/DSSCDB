@@ -180,7 +180,7 @@ class PerformanceStructureSearchForm(forms.Form):
     smiles = forms.CharField(max_length=1000, required=False)
     complete_molecule = forms.BooleanField(required=False)
     search_type = forms.ChoiceField(choices=SEARCH_TYPES, label='Structure search type', widget=forms.RadioSelect)
-    tanimoto_threshold = forms.DecimalField(decimal_places=2, max_digits=3, initial=0.85)
+    tanimoto_threshold = forms.DecimalField(decimal_places=2, max_digits=3, initial=0.85, required=True)
 
     def is_valid(self):
         super().is_valid()
